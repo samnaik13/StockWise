@@ -3,7 +3,7 @@
 
 **Execution Environment:** PHP 8.2.12 CLI / Apache + MariaDB 10.4.32 (XAMPP)  
 **Database Name:** `grocery_inventory`  
-**Test Suite File:** [`tests/run_all_tests.php`](file:///c:/Users/naiks/Desktop/MY_INVENTORY/tests/run_all_tests.php)  
+**Test Suite File:** [`tests/run_all_tests.php`](tests/run_all_tests.php)  
 **Overall Result:** 100% PASS (All 20 Operations Verified)
 
 ---

@@ -1,4 +1,7 @@
 # StockWise - Grocery Store Inventory Management System
+
+**Author:** [Samarth Naik](https://github.com/samnaik13)  
+**DBMS Project:** Relational Database Management System with 3NF Normalization, ACID Transactions, Views, and Triggers.
 ### A Complete, Academic Relational Database Management Systems (DBMS) College Project
 
 Developed with **PHP 8.2**, **MariaDB 10.4 / MySQL**, **Apache (XAMPP)**, and **phpMyAdmin**.
@@ -33,7 +36,7 @@ Developed with **PHP 8.2**, **MariaDB 10.4 / MySQL**, **Apache (XAMPP)**, and **
 ### 2. Live Directory Setup
 The project files are located in your workspace:
 ```
-c:\Users\naiks\Desktop\MY_INVENTORY
+C:\xampp\htdocs\grocery_inventory
 ```
 and a Windows directory junction has already been created to:
 ```
@@ -127,7 +130,7 @@ grocery_inventory/
 You can run all 20 operational test cases anytime from PowerShell or Command Prompt:
 
 ```powershell
-C:\xampp\php\php.exe "c:\Users\naiks\Desktop\MY_INVENTORY\tests\run_all_tests.php"
+C:\xampp\php\php.exe "C:\xampp\htdocs\grocery_inventory\tests\run_all_tests.php"
 ```
 
 **Verified Test Summary:**
@@ -155,9 +158,9 @@ C:\xampp\php\php.exe "c:\Users\naiks\Desktop\MY_INVENTORY\tests\run_all_tests.ph
 ## 🎓 ACADEMIC SUBMISSION DOCUMENTS
 
 For project submissions, report generation, and viva preparation:
-- [Phase 1 Planning](file:///c:/Users/naiks/Desktop/MY_INVENTORY/docs/phase1_requirements_and_database_planning.md)
-- [Phase 2 ER Diagram, Schema & 3NF Normalization](file:///c:/Users/naiks/Desktop/MY_INVENTORY/docs/phase2_er_schema_normalization.md)
-- [20-Point Test Suite Matrix](file:///c:/Users/naiks/Desktop/MY_INVENTORY/docs/test_cases.md)
-- [Comprehensive DBMS Viva Questions & Answers](file:///c:/Users/naiks/Desktop/MY_INVENTORY/docs/viva_questions.md)
-- [phpMyAdmin SQL Demonstration Guide](file:///c:/Users/naiks/Desktop/MY_INVENTORY/docs/sql_demonstration_guide.md)
+- [Phase 1 Planning](docs/phase1_requirements_and_database_planning.md)
+- [Phase 2 ER Diagram, Schema & 3NF Normalization](docs/phase2_er_schema_normalization.md)
+- [20-Point Test Suite Matrix](docs/test_cases.md)
+- [Comprehensive DBMS Viva Questions & Answers](docs/viva_questions.md)
+- [phpMyAdmin SQL Demonstration Guide](docs/sql_demonstration_guide.md)
 

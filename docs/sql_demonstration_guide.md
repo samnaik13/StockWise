@@ -14,7 +14,7 @@ This guide provides a step-by-step script for college students to demonstrate th
 2. In the left sidebar, click on the database **`grocery_inventory`**.
 3. If the database is not yet loaded:
    - Click the **Import** tab at the top.
-   - Click **Choose File** and select `c:\Users\naiks\Desktop\MY_INVENTORY\database\grocery_inventory.sql`.
+   - Click **Choose File** and select `C:\xampp\htdocs\grocery_inventory\database\grocery_inventory.sql`.
    - Scroll down and click **Import** (or **Go**).
    - You should see green checkmarks confirming all tables, views, triggers, and sample records were created.
 

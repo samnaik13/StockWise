@@ -3,7 +3,7 @@
 **Course:** Database Management Systems (DBMS)  
 **Target Database:** `grocery_inventory`  
 **Execution Environment:** XAMPP (Apache + MariaDB 10.4.32 + PHP 8.2.12 + phpMyAdmin)  
-**Workspace:** `C:\Users\naiks\Desktop\MY_INVENTORY`
+**Workspace:** `C:\xampp\htdocs\grocery_inventory`
 
 ---
 
@@ -18,7 +18,7 @@ Before proceeding with the database design, a complete environment verification 
 | **PHP Engine** | PHP 8.2.12 (cli / apache) | Active |
 | **Database Server** | MariaDB 10.4.32 (XAMPP Bundled) | Active via default port 3306 |
 | **Database Admin** | phpMyAdmin (`http://localhost/phpmyadmin/`) | Bundled |
-| **Project Location** | `C:\Users\naiks\Desktop\MY_INVENTORY` | Initialized |
+| **Project Location** | `C:\xampp\htdocs\grocery_inventory` | Initialized |
 | **Local Web Access** | `http://localhost/grocery_inventory/` | Target URL |
 
 ---
