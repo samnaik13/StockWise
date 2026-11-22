@@ -1,0 +1,73 @@
+erDiagram
+    CATEGORIES ||--o{ PRODUCTS : contains
+    SUPPLIERS ||--o{ PURCHASES : supplies
+    PURCHASES ||--|{ PURCHASE_ITEMS : contains
+    PRODUCTS ||--o{ PURCHASE_ITEMS : purchased_as
+    SALES ||--|{ SALE_ITEMS : contains
+    PRODUCTS ||--o{ SALE_ITEMS : sold_as
+    PRODUCTS ||--|| INVENTORY : has
+    PRODUCTS ||--o{ STOCK_MOVEMENTS : records
+
+    CATEGORIES {
+      int category_id PK
+      varchar category_name UK
+      varchar description
+    }
+    PRODUCTS {
+      int product_id PK
+      varchar product_name
+      int category_id FK
+      decimal selling_price
+      decimal reorder_level
+      varchar unit
+    }
+    SUPPLIERS {
+      int supplier_id PK
+      varchar supplier_name
+      varchar phone
+      varchar email
+      varchar address
+    }
+    PURCHASES {
+      int purchase_id PK
+      int supplier_id FK
+      date purchase_date
+      varchar invoice_number UK
+    }
+    PURCHASE_ITEMS {
+      int purchase_item_id PK
+      int purchase_id FK
+      int product_id FK
+      decimal quantity
+      decimal unit_cost
+      date expiry_date
+    }
+    SALES {
+      int sale_id PK
+      date sale_date
+      varchar bill_number UK
+    }
+    SALE_ITEMS {
+      int sale_item_id PK
+      int sale_id FK
+      int product_id FK
+      decimal quantity
+      decimal unit_selling_price
+      decimal unit_cost_at_sale
+    }
+    INVENTORY {
+      int product_id PK, FK
+      decimal quantity_available
+      decimal average_cost
+      datetime last_updated
+    }
+    STOCK_MOVEMENTS {
+      bigint movement_id PK
+      int product_id FK
+      datetime movement_date
+      varchar movement_type
+      decimal quantity
+      decimal unit_cost
+      varchar remarks
+      varchar reference_code
+    }
