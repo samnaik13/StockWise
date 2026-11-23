@@ -20,12 +20,12 @@
 
     /* Data Stores (Open Rectangle with left compartment) */
     .store-line { stroke: #000000; stroke-width: 1.5; }
-    .store-text { font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .store-text { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
 
     /* Connectors & Clean Flow Labels */
     .flow-line { stroke: #000000; stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
-    .flow-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; paint-order: stroke fill; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
-    .flow-label-center { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; text-anchor: middle; paint-order: stroke fill; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
+    .flow-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; }
+    .flow-label-center { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; text-anchor: middle; }
 
     /* Bottom Title matching reference */
     .dfd-title { font-family: Arial, Helvetica, sans-serif; font-size: 34px; font-weight: bold; fill: #000000; text-anchor: middle; }
@@ -108,13 +108,13 @@
     <text x="125" y="30" class="store-text">purchase details</text>
   </g>
 
-  <!-- Store 3: Inventory Details (y = 450 to 570, height = 120) -->
-  <g transform="translate(760, 450)">
+  <!-- Store 3: Inventory Details (y = 440 to 720, height = 280, spans Process 3 & 4) -->
+  <g transform="translate(760, 440)">
     <line x1="0" y1="0" x2="220" y2="0" class="store-line"/>
-    <line x1="0" y1="120" x2="220" y2="120" class="store-line"/>
-    <line x1="0" y1="0" x2="0" y2="120" class="store-line"/>
-    <line x1="30" y1="0" x2="30" y2="120" class="store-line"/>
-    <text x="125" y="60" class="store-text">inventory details</text>
+    <line x1="0" y1="280" x2="220" y2="280" class="store-line"/>
+    <line x1="0" y1="0" x2="0" y2="280" class="store-line"/>
+    <line x1="30" y1="0" x2="30" y2="280" class="store-line"/>
+    <text x="125" y="140" class="store-text">inventory details</text>
   </g>
 
   <!-- Store 4: Sales Details (y = 882) -->
@@ -129,6 +129,8 @@
 
   <!-- ============================================================== -->
   <!-- 4. DATA FLOWS: ADMIN -> PROCESSES (LEFT SIDE)                  -->
+  <!-- Inbound line is ALWAYS inside (closer to process) than outbound-->
+  <!-- ZERO LINE CROSSINGS!                                           -->
   <!-- ============================================================== -->
 
   <!-- Admin <-> Manage Products (Horizontal) -->
@@ -138,25 +140,25 @@
   <line x1="444" y1="97" x2="202" y2="97" class="flow-line"/>
   <text x="320" y="110" class="flow-label-center">Response / Status</text>
 
-  <!-- Admin <-> Purchase / Stock-In (Drop Bus at x=170, 150) -->
-  <path d="M 170 120 L 170 265 L 442 265" class="flow-line"/>
-  <text x="306" y="257" class="flow-label-center">Purchase Invoice &amp; Items</text>
+  <!-- Admin <-> Purchase / Stock-In (Outbound x=150, Inbound x=175) -->
+  <path d="M 150 120 L 150 265 L 442 265" class="flow-line"/>
+  <text x="310" y="257" class="flow-label-center">Purchase Invoice &amp; Items</text>
 
-  <path d="M 444 295 L 150 295 L 150 122" class="flow-line"/>
-  <text x="306" y="308" class="flow-label-center">Purchase Confirmation</text>
+  <path d="M 444 295 L 175 295 L 175 122" class="flow-line"/>
+  <text x="310" y="308" class="flow-label-center">Purchase Confirmation</text>
 
-  <!-- Admin <-> Stock Adjustment (Drop Bus at x=125, 105) -->
-  <path d="M 125 120 L 125 465 L 442 465" class="flow-line"/>
+  <!-- Admin <-> Stock Adjustment (Outbound x=110, Inbound x=135) -->
+  <path d="M 110 120 L 110 465 L 442 465" class="flow-line"/>
   <text x="290" y="457" class="flow-label-center">Damage / Spoilage Entry</text>
 
-  <path d="M 444 495 L 105 495 L 105 122" class="flow-line"/>
+  <path d="M 444 495 L 135 495 L 135 122" class="flow-line"/>
   <text x="290" y="508" class="flow-label-center">Adjustment Status</text>
 
-  <!-- Admin <-> View Reports (Drop Bus at x=80, 60) -->
-  <path d="M 80 120 L 80 665 L 442 665" class="flow-line"/>
+  <!-- Admin <-> View Reports (Outbound x=70, Inbound x=95) -->
+  <path d="M 70 120 L 70 665 L 442 665" class="flow-line"/>
   <text x="270" y="657" class="flow-label-center">Request Reports &amp; Alerts</text>
 
-  <path d="M 444 695 L 60 695 L 60 122" class="flow-line"/>
+  <path d="M 444 695 L 95 695 L 95 122" class="flow-line"/>
   <text x="270" y="708" class="flow-label-center">Low-Stock &amp; Profit Reports</text>
 
 
@@ -173,54 +175,47 @@
 
   <!-- ============================================================== -->
   <!-- 6. DATA FLOWS: PROCESSES <-> DATA STORES (RIGHT SIDE)          -->
+  <!-- 100% PURE HORIZONTAL LINES — ZERO BENDS, ZERO CROSSINGS!       -->
   <!-- ============================================================== -->
 
-  <!-- Process 1 <-> Product Details (Horizontal) -->
+  <!-- Process 1 <-> Product Details (Pure Horizontal) -->
   <line x1="536" y1="67" x2="758" y2="67" class="flow-line"/>
-  <text x="645" y="59" class="flow-label-center">Check / Save Product</text>
+  <text x="648" y="59" class="flow-label-center">Check / Save Product</text>
 
   <line x1="760" y1="97" x2="538" y2="97" class="flow-line"/>
-  <text x="645" y="110" class="flow-label-center">Response</text>
+  <text x="648" y="110" class="flow-label-center">Response</text>
 
 
-  <!-- Process 2 <-> Purchase Details (Horizontal) -->
+  <!-- Process 2 <-> Purchase Details (Pure Horizontal) -->
   <line x1="536" y1="265" x2="758" y2="265" class="flow-line"/>
-  <text x="645" y="257" class="flow-label-center">Save Purchase Record</text>
+  <text x="648" y="257" class="flow-label-center">Save Purchase Record</text>
 
   <line x1="760" y1="295" x2="538" y2="295" class="flow-line"/>
-  <text x="645" y="308" class="flow-label-center">Response</text>
-
-  <!-- Process 2 -> Inventory Details (Update Stock) - Drop at x=730 -->
-  <path d="M 526 312 L 730 312 L 730 470 L 758 470" class="flow-line"/>
-  <text x="625" y="324" class="flow-label-center">Update Stock &amp; Cost</text>
+  <text x="648" y="308" class="flow-label-center">Response</text>
 
 
-  <!-- Process 3 <-> Inventory Details (Stock Adjustment - Horizontal) -->
-  <line x1="536" y1="480" x2="758" y2="480" class="flow-line"/>
-  <text x="640" y="472" class="flow-label-center">Deduct Damaged Stock</text>
+  <!-- Process 3 <-> Inventory Details (Pure Horizontal) -->
+  <line x1="536" y1="465" x2="758" y2="465" class="flow-line"/>
+  <text x="648" y="457" class="flow-label-center">Deduct Damaged Stock</text>
 
-  <line x1="760" y1="510" x2="538" y2="510" class="flow-line"/>
-  <text x="640" y="523" class="flow-label-center">Response</text>
-
-
-  <!-- Process 4 <-> Inventory Details (View Reports - Step Up to Store 3) -->
-  <path d="M 536 665 L 685 665 L 685 540 L 758 540" class="flow-line"/>
-  <text x="605" y="657" class="flow-label-center">Check Stock Levels</text>
-
-  <path d="M 760 558 L 665 558 L 665 695 L 538 695" class="flow-line"/>
-  <text x="605" y="708" class="flow-label-center">Stock Valuation Data</text>
+  <line x1="760" y1="495" x2="538" y2="495" class="flow-line"/>
+  <text x="648" y="508" class="flow-label-center">Response</text>
 
 
-  <!-- Process 5 <-> Sales Details (Counter Billing - Horizontal) -->
+  <!-- Process 4 <-> Inventory Details (Pure Horizontal) -->
+  <line x1="536" y1="665" x2="758" y2="665" class="flow-line"/>
+  <text x="648" y="657" class="flow-label-center">Check Stock Levels</text>
+
+  <line x1="760" y1="695" x2="538" y2="695" class="flow-line"/>
+  <text x="648" y="708" class="flow-label-center">Stock Valuation Data</text>
+
+
+  <!-- Process 5 <-> Sales Details (Pure Horizontal) -->
   <line x1="536" y1="897" x2="758" y2="897" class="flow-line"/>
-  <text x="645" y="889" class="flow-label-center">Save Sales Bill &amp; Items</text>
+  <text x="648" y="889" class="flow-label-center">Save Sales Bill &amp; Items</text>
 
   <line x1="760" y1="927" x2="538" y2="927" class="flow-line"/>
-  <text x="645" y="940" class="flow-label-center">Response</text>
-
-  <!-- Process 5 -> Inventory Details (Check & Deduct Stock) - Rise at x=735 -->
-  <path d="M 526 880 L 735 880 L 735 570 L 758 570" class="flow-line"/>
-  <text x="630" y="872" class="flow-label-center">Check &amp; Deduct Stock</text>
+  <text x="648" y="940" class="flow-label-center">Response</text>
 
 
   <!-- ============================================================== -->
