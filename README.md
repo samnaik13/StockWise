@@ -160,6 +160,7 @@ C:\xampp\php\php.exe "C:\xampp\htdocs\grocery_inventory\tests\run_all_tests.php"
 For project submissions, report generation, and viva preparation:
 - [Entity-Relationship (ER) Diagram (High-Res PNG)](docs/er_diagram.png) • [Vector SVG](docs/er_diagram.svg) • [Interactive Viewer](docs/er_diagram.html)
 - [DFD Level 0 Context Diagram (High-Res PNG)](docs/dfd_level_0.png) • [Vector SVG](docs/dfd_level_0.svg) • [Interactive Viewer](docs/dfd_level_0.html)
+- [DFD Level 1 Process & Data Store Diagram (High-Res PNG)](docs/dfd_level_1.png) • [Vector SVG](docs/dfd_level_1.svg) • [Interactive Viewer](docs/dfd_level_1.html)
 - [Phase 1 Planning](docs/phase1_requirements_and_database_planning.md)
 - [Phase 2 ER Diagram, Schema & 3NF Normalization](docs/phase2_er_schema_normalization.md)
 - [20-Point Test Suite Matrix](docs/test_cases.md)

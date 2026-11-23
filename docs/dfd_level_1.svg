@@ -1,0 +1,355 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1860 1140" width="3720" height="2280">
+  <defs>
+    <!-- Solid black arrowhead for write / input / trigger flows -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#000000"/>
+    </marker>
+    <!-- Dashed dark arrowhead for query / read flows -->
+    <marker id="arrow-dash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#222222"/>
+    </marker>
+  </defs>
+
+  <style>
+    <![CDATA[
+    .bg { fill: #ffffff; }
+    .title { font-family: Arial, Helvetica, sans-serif; font-size: 19px; font-weight: bold; fill: #000000; }
+    .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 12px; fill: #555555; }
+
+    /* External Entities (Draw.io Rectangles) */
+    .entity-box { fill: #ffffff; stroke: #000000; stroke-width: 1.5; }
+    .entity-title { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .entity-sub { font-family: Arial, Helvetica, sans-serif; font-size: 10.5px; fill: #555555; text-anchor: middle; dominant-baseline: central; }
+
+    /* Functional Processes (Draw.io Gane & Sarson Rounded Boxes) */
+    .process-box { fill: #ffffff; stroke: #000000; stroke-width: 1.5; rx: 8; ry: 8; }
+    .process-line { stroke: #000000; stroke-width: 1.3; }
+    .process-id { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .process-name { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .process-desc { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; fill: #444444; text-anchor: middle; dominant-baseline: central; }
+
+    /* Gane & Sarson Data Stores (Open-ended box with left ID compartment) */
+    .store-line { stroke: #000000; stroke-width: 1.4; fill: none; }
+    .store-id-bg { fill: #ffffff; stroke: #000000; stroke-width: 1.4; }
+    .store-id { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .store-name { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; font-weight: bold; fill: #000000; dominant-baseline: central; }
+    .store-sub { font-family: Arial, Helvetica, sans-serif; font-size: 10px; fill: #444444; dominant-baseline: central; }
+
+    /* Connectors & Clean Readable Labels */
+    .flow-line { stroke: #000000; stroke-width: 1.3; fill: none; marker-end: url(#arrow); }
+    .flow-dash { stroke: #222222; stroke-width: 1.2; stroke-dasharray: 4,3; fill: none; marker-end: url(#arrow-dash); }
+    .flow-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; paint-order: stroke fill; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
+    .flow-label-center { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 500; fill: #000000; text-anchor: middle; paint-order: stroke fill; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
+    ]]>
+  </style>
+
+  <!-- Pure White Canvas Background -->
+  <rect width="1860" height="1140" class="bg"/>
+
+  <!-- Header Title -->
+  <text x="35" y="42" class="title">1 Level DFD (Functional Decomposition &amp; Persistent Data Stores)</text>
+  <text x="35" y="63" class="subtitle">StockWise DBMS — Sub-processes 1.0 to 5.0, External Terminators, and Gane &amp; Sarson Data Stores (D1–D7)</text>
+
+  <!-- Top-Right Legend Box -->
+  <g transform="translate(1495, 20)">
+    <rect x="0" y="0" width="330" height="52" fill="#ffffff" stroke="#888888" stroke-width="1" rx="4"/>
+    <line x1="15" y1="18" x2="60" y2="18" class="flow-line"/>
+    <text x="70" y="21" class="flow-label">Solid Arrow: Write / Input / Trigger Flow</text>
+    <line x1="15" y1="36" x2="60" y2="36" class="flow-dash"/>
+    <text x="70" y="39" class="flow-label">Dashed Arrow: Read / Query / Lookup Flow</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- 1. EXTERNAL ENTITIES (Terminators)                             -->
+  <!-- ============================================================== -->
+
+  <!-- Entity 1: Store Admin / Cashier -->
+  <g transform="translate(120, 115)">
+    <rect x="0" y="0" width="150" height="85" class="entity-box"/>
+    <text x="75" y="32" class="entity-title">Store Admin /</text>
+    <text x="75" y="48" class="entity-title">Cashier</text>
+    <text x="75" y="67" class="entity-sub">(Internal User)</text>
+  </g>
+
+  <!-- Entity 2: Wholesale Supplier -->
+  <g transform="translate(120, 330)">
+    <rect x="0" y="0" width="150" height="78" class="entity-box"/>
+    <text x="75" y="30" class="entity-title">Wholesale</text>
+    <text x="75" y="46" class="entity-title">Supplier</text>
+    <text x="75" y="64" class="entity-sub">(External Vendor)</text>
+  </g>
+
+  <!-- Entity 3: Retail Customer -->
+  <g transform="translate(120, 545)">
+    <rect x="0" y="0" width="150" height="78" class="entity-box"/>
+    <text x="75" y="30" class="entity-title">Retail</text>
+    <text x="75" y="46" class="entity-title">Customer</text>
+    <text x="75" y="64" class="entity-sub">(Shopper / Buyer)</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- 2. FUNCTIONAL PROCESSES (1.0 to 5.0)                           -->
+  <!-- ============================================================== -->
+
+  <!-- Process 1.0: Products, Categories & Suppliers Setup -->
+  <g transform="translate(430, 115)">
+    <rect x="0" y="0" width="230" height="78" class="process-box"/>
+    <line x1="0" y1="26" x2="230" y2="26" class="process-line"/>
+    <text x="115" y="14" class="process-id">1.0</text>
+    <text x="115" y="44" class="process-name">Product &amp; Supplier Setup</text>
+    <text x="115" y="62" class="process-desc">Catalog, Pricing, Categories &amp; Limits</text>
+  </g>
+
+  <!-- Process 2.0: Stock-In Procurement -->
+  <g transform="translate(430, 330)">
+    <rect x="0" y="0" width="230" height="78" class="process-box"/>
+    <line x1="0" y1="26" x2="230" y2="26" class="process-line"/>
+    <text x="115" y="14" class="process-id">2.0</text>
+    <text x="115" y="44" class="process-name">Stock-In Procurement</text>
+    <text x="115" y="62" class="process-desc">Purchase Receiving &amp; WAC Recalc</text>
+  </g>
+
+  <!-- Process 3.0: Sales Counter Billing -->
+  <g transform="translate(430, 545)">
+    <rect x="0" y="0" width="230" height="78" class="process-box"/>
+    <line x1="0" y1="26" x2="230" y2="26" class="process-line"/>
+    <text x="115" y="14" class="process-id">3.0</text>
+    <text x="115" y="44" class="process-name">Point-of-Sale (POS) Billing</text>
+    <text x="115" y="62" class="process-desc">Availability Check, Bill &amp; Stock Deduction</text>
+  </g>
+
+  <!-- Process 4.0: Non-Sale Stock Adjustments -->
+  <g transform="translate(430, 755)">
+    <rect x="0" y="0" width="230" height="78" class="process-box"/>
+    <line x1="0" y1="26" x2="230" y2="26" class="process-line"/>
+    <text x="115" y="14" class="process-id">4.0</text>
+    <text x="115" y="44" class="process-name">Stock Adjustment &amp; Wastage</text>
+    <text x="115" y="62" class="process-desc">Damage, Spoilage &amp; Internal Consumption</text>
+  </g>
+
+  <!-- Process 5.0: Inventory Analytics & Reports -->
+  <g transform="translate(430, 965)">
+    <rect x="0" y="0" width="230" height="78" class="process-box"/>
+    <line x1="0" y1="26" x2="230" y2="26" class="process-line"/>
+    <text x="115" y="14" class="process-id">5.0</text>
+    <text x="115" y="44" class="process-name">Analytics &amp; Financial Reporting</text>
+    <text x="115" y="62" class="process-desc">Low-Stock Alerts, COGS &amp; Gross Profit</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- 3. GANE-SARSON DATA STORES (D1 to D7)                          -->
+  <!-- ============================================================== -->
+
+  <!-- D1: Category -->
+  <g transform="translate(1340, 100)">
+    <rect x="0" y="0" width="45" height="46" class="store-id-bg"/>
+    <text x="22" y="24" class="store-id">D1</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="46" x2="480" y2="46" class="store-line"/>
+    <text x="56" y="18" class="store-name">Category</text>
+    <text x="56" y="34" class="store-sub">category_id, category_name, description</text>
+  </g>
+
+  <!-- D2: Product -->
+  <g transform="translate(1340, 185)">
+    <rect x="0" y="0" width="45" height="46" class="store-id-bg"/>
+    <text x="22" y="24" class="store-id">D2</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="46" x2="480" y2="46" class="store-line"/>
+    <text x="56" y="18" class="store-name">Product</text>
+    <text x="56" y="34" class="store-sub">product_id, product_name, unit, selling_price, reorder_level</text>
+  </g>
+
+  <!-- D3: Supplier -->
+  <g transform="translate(1340, 275)">
+    <rect x="0" y="0" width="45" height="46" class="store-id-bg"/>
+    <text x="22" y="24" class="store-id">D3</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="46" x2="480" y2="46" class="store-line"/>
+    <text x="56" y="18" class="store-name">Supplier</text>
+    <text x="56" y="34" class="store-sub">supplier_id, supplier_name, email, phone, address</text>
+  </g>
+
+  <!-- D4: Purchases & Purchase_Items -->
+  <g transform="translate(1340, 395)">
+    <rect x="0" y="0" width="45" height="46" class="store-id-bg"/>
+    <text x="22" y="24" class="store-id">D4</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="46" x2="480" y2="46" class="store-line"/>
+    <text x="56" y="18" class="store-name">Purchases &amp; Purchase_Items</text>
+    <text x="56" y="34" class="store-sub">purchase_id, invoice_number, purchase_date, quantity, unit_cost</text>
+  </g>
+
+  <!-- D5: Sales & Sale_Items -->
+  <g transform="translate(1340, 545)">
+    <rect x="0" y="0" width="45" height="46" class="store-id-bg"/>
+    <text x="22" y="24" class="store-id">D5</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="46" x2="480" y2="46" class="store-line"/>
+    <text x="56" y="18" class="store-name">Sales &amp; Sale_Items</text>
+    <text x="56" y="34" class="store-sub">sale_id, bill_number, sale_date, quantity, unit_selling_price</text>
+  </g>
+
+  <!-- D6: Inventory (Master Balance) -->
+  <g transform="translate(1340, 725)">
+    <rect x="0" y="0" width="45" height="90" class="store-id-bg"/>
+    <text x="22" y="45" class="store-id">D6</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="90" x2="480" y2="90" class="store-line"/>
+    <text x="56" y="24" class="store-name">Inventory (Master Stock Balance)</text>
+    <text x="56" y="44" class="store-sub">product_id, quantity_available, average_cost, last_updated</text>
+    <text x="56" y="64" class="store-sub" fill="#666666">(Central perpetual balance &amp; weighted cost engine)</text>
+  </g>
+
+  <!-- D7: Stock_Movements (Audit Ledger) -->
+  <g transform="translate(1340, 935)">
+    <rect x="0" y="0" width="45" height="80" class="store-id-bg"/>
+    <text x="22" y="40" class="store-id">D7</text>
+    <line x1="45" y1="0" x2="480" y2="0" class="store-line"/>
+    <line x1="45" y1="80" x2="480" y2="80" class="store-line"/>
+    <text x="56" y="22" class="store-name">Stock_Movements (Audit Ledger)</text>
+    <text x="56" y="42" class="store-sub">movement_id, product_id, movement_type, quantity, remarks</text>
+    <text x="56" y="62" class="store-sub" fill="#666666">(Immutable ledger: PURCHASE, SALE, DAMAGE, INTERNAL_USE)</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- 4. DATA FLOWS: EXTERNAL ENTITIES <-> PROCESSES                 -->
+  <!-- ============================================================== -->
+
+  <!-- Admin <-> Process 1.0 (Direct Horizontal) -->
+  <line x1="270" y1="140" x2="428" y2="140" class="flow-line"/>
+  <text x="350" y="132" class="flow-label-center">Product, Category &amp; Supplier Master Data</text>
+
+  <line x1="430" y1="170" x2="272" y2="170" class="flow-line"/>
+  <text x="350" y="182" class="flow-label-center">Master Record Status &amp; Confirmations</text>
+
+  <!-- Supplier <-> Process 2.0 (Direct Horizontal) -->
+  <line x1="270" y1="350" x2="428" y2="350" class="flow-line"/>
+  <text x="350" y="342" class="flow-label-center">Wholesale Invoices &amp; Consignments</text>
+
+  <line x1="430" y1="380" x2="272" y2="380" class="flow-line"/>
+  <text x="350" y="392" class="flow-label-center">Goods Receipt Note (GRN)</text>
+
+  <!-- Customer <-> Process 3.0 (Direct Horizontal) -->
+  <line x1="270" y1="565" x2="428" y2="565" class="flow-line"/>
+  <text x="350" y="557" class="flow-label-center">Items Purchased &amp; Cash / UPI Payment</text>
+
+  <line x1="430" y1="595" x2="272" y2="595" class="flow-line"/>
+  <text x="350" y="607" class="flow-label-center">Printed Sales Bill &amp; Itemized Receipt</text>
+
+  <!-- Admin <-> Process 4.0 (Outer Left Margin x=65, x=85) -->
+  <path d="M 120 155 L 65 155 L 65 775 L 428 775" class="flow-line"/>
+  <text x="75" y="767" class="flow-label">Stock Loss Entry (Damage / Spoilage / Internal Consumption)</text>
+
+  <path d="M 430 805 L 85 805 L 85 175 L 118 175" class="flow-line"/>
+  <text x="95" y="797" class="flow-label">Stock Adjustment Ledger Confirmation</text>
+
+  <!-- Admin <-> Process 5.0 (Outer Left Margin x=25, x=45) -->
+  <path d="M 120 135 L 25 135 L 25 985 L 428 985" class="flow-line"/>
+  <text x="35" y="977" class="flow-label">Report Request &amp; Threshold Filters</text>
+
+  <path d="M 430 1015 L 45 1015 L 45 190 L 118 190" class="flow-line"/>
+  <text x="55" y="1027" class="flow-label">Low-Stock Alerts, COGS &amp; Gross Profit Statements</text>
+
+
+  <!-- ============================================================== -->
+  <!-- 5. DATA FLOWS: PROCESSES <-> DATA STORES                       -->
+  <!-- ALL LABELS strictly placed in the horizontal zone x=675..950   -->
+  <!-- ALL VERTICAL BUS LINES strictly routed in zone x=980..1320     -->
+  <!-- NO VERTICAL LINE EVER CROSSES ANY TEXT LABEL!                  -->
+  <!-- ============================================================== -->
+
+  <!-- Process 1.0 Flows -->
+  <!-- 1.0 -> D1 Category (Write) -->
+  <line x1="660" y1="123" x2="1338" y2="123" class="flow-line"/>
+  <text x="680" y="115" class="flow-label">Write Category Record</text>
+
+  <!-- 1.0 -> D2 Product (Write) - Bus at x=980 -->
+  <path d="M 660 148 L 980 148 L 980 205 L 1338 205" class="flow-line"/>
+  <text x="680" y="140" class="flow-label">Write Product Catalog &amp; Reorder Level</text>
+
+  <!-- 1.0 -> D3 Supplier (Write) - Bus at x=1005 -->
+  <path d="M 660 170 L 1005 170 L 1005 295 L 1338 295" class="flow-line"/>
+  <text x="680" y="162" class="flow-label">Write Supplier Contact &amp; Terms</text>
+
+  <!-- 1.0 -> D6 Inventory (Init Available Stock) - Bus at x=1030 -->
+  <path d="M 660 188 L 1030 188 L 1030 735 L 1338 735" class="flow-line"/>
+  <text x="680" y="180" class="flow-label">Initialize Stock Balance (0.000)</text>
+
+
+  <!-- Process 2.0 Flows -->
+  <!-- 2.0 reads D3 Supplier - Bus at x=1055 -->
+  <path d="M 1340 315 L 1055 315 L 1055 342 L 662 342" class="flow-dash"/>
+  <text x="680" y="334" class="flow-label">Verify Supplier Details</text>
+
+  <!-- 2.0 -> D4 Purchases & Items (Write) - Bus at x=1080 -->
+  <path d="M 660 362 L 1080 362 L 1080 418 L 1338 418" class="flow-line"/>
+  <text x="680" y="354" class="flow-label">Insert Purchase Invoice &amp; Received Batch Items</text>
+
+  <!-- 2.0 -> D6 Inventory (Update Stock & WAC) - Bus at x=1105 -->
+  <path d="M 660 382 L 1105 382 L 1105 750 L 1338 750" class="flow-line"/>
+  <text x="680" y="374" class="flow-label">Add Received Stock &amp; Update Weighted Average Cost</text>
+
+  <!-- 2.0 -> D7 Stock_Movements (Log Purchase) - Bus at x=1130 -->
+  <path d="M 660 400 L 1130 400 L 1130 950 L 1338 950" class="flow-line"/>
+  <text x="680" y="392" class="flow-label">Log 'PURCHASE' Stock Movement Record</text>
+
+
+  <!-- Process 3.0 Flows -->
+  <!-- 3.0 reads D2 Product - Bus at x=1155 -->
+  <path d="M 1340 225 L 1155 225 L 1155 552 L 662 552" class="flow-dash"/>
+  <text x="680" y="544" class="flow-label">Read Product Price, Unit &amp; Name</text>
+
+  <!-- 3.0 reads D6 Inventory (Check Availability) - Bus at x=1180 -->
+  <path d="M 1340 765 L 1180 765 L 1180 570 L 662 570" class="flow-dash"/>
+  <text x="680" y="562" class="flow-label">Validate Real-time Stock Availability</text>
+
+  <!-- 3.0 -> D5 Sales & Sale_Items (Write) - Direct Horizontal -->
+  <line x1="660" y1="588" x2="1338" y2="588" class="flow-line"/>
+  <text x="680" y="580" class="flow-label">Record Sale Invoice &amp; Itemized Lines (Frozen Cost)</text>
+
+  <!-- 3.0 -> D6 Inventory (Deduct Sold Stock) - Bus at x=1205 -->
+  <path d="M 660 605 L 1205 605 L 1205 780 L 1338 780" class="flow-line"/>
+  <text x="680" y="618" class="flow-label">Deduct Sold Stock Balance</text>
+
+  <!-- 3.0 -> D7 Stock_Movements (Log Sale) - Bus at x=1230 -->
+  <path d="M 660 620 L 1230 620 L 1230 965 L 1338 965" class="flow-line"/>
+  <text x="680" y="634" class="flow-label">Log 'SALE' Movement Record</text>
+
+
+  <!-- Process 4.0 Flows -->
+  <!-- 4.0 reads D6 Inventory - Bus at x=1250 -->
+  <path d="M 1340 795 L 1250 795 L 1250 765 L 662 765" class="flow-dash"/>
+  <text x="680" y="757" class="flow-label">Read Current Physical Stock Balance</text>
+
+  <!-- 4.0 -> D6 Inventory (Deduct Loss) - Bus at x=1270 -->
+  <path d="M 660 785 L 1270 785 L 1270 810 L 1338 810" class="flow-line"/>
+  <text x="680" y="777" class="flow-label">Deduct Damaged / Spoiled / Internal Use Stock</text>
+
+  <!-- 4.0 -> D7 Stock_Movements (Log Adjustment) - Bus at x=1290 -->
+  <path d="M 660 808 L 1290 808 L 1290 980 L 1338 980" class="flow-line"/>
+  <text x="680" y="800" class="flow-label">Log 'DAMAGE' / 'INTERNAL_USE' Movement Entry</text>
+
+
+  <!-- Process 5.0 Flows -->
+  <!-- 5.0 reads D2 Product (Reorder Levels) - Bus at x=1305 -->
+  <path d="M 1340 240 L 1305 240 L 1305 972 L 662 972" class="flow-dash"/>
+  <text x="680" y="964" class="flow-label">Read Reorder Threshold Levels</text>
+
+  <!-- 5.0 reads D5 Sales (Revenue & COGS) - Bus at x=1318 -->
+  <path d="M 1340 570 L 1318 570 L 1318 990 L 662 990" class="flow-dash"/>
+  <text x="680" y="982" class="flow-label">Read Sales Revenue &amp; COGS Cost</text>
+
+  <!-- 5.0 reads D6 Inventory (Current Quantities & Valuation) - Bus at x=1280 -->
+  <path d="M 1340 825 L 1280 825 L 1280 1008 L 662 1008" class="flow-dash"/>
+  <text x="680" y="1000" class="flow-label">Read Total Stock Valuation &amp; Quantities</text>
+
+  <!-- 5.0 reads D7 Stock_Movements (Audit Trail) - Bus at x=1260 -->
+  <path d="M 1340 1000 L 1260 1000 L 1260 1025 L 662 1025" class="flow-dash"/>
+  <text x="680" y="1017" class="flow-label">Read Complete Stock Movement Audit Trail</text>
+
+</svg>

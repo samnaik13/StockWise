@@ -131,72 +131,28 @@ flowchart TD
 
 ---
 
-### B. DFD Level 1 (Detailed Functional Process Decomposition)
-Breaks down the system into core database-driven processes and shows interactions with the persistent Data Stores ($D_1$ to $D_9$).
+### B. DFD Level 1 (Functional Decomposition & Persistent Data Stores)
+Breaks down the system into its five functional sub-processes, depicting interactions with external terminators and relational database tables represented as Gane & Sarson data stores ($D_1$ to $D_7$).
 
-```mermaid
-flowchart TD
-    Admin["Shop Administrator"]
-    
-    subgraph SystemProcesses ["Grocery Inventory System Processes"]
-        P1["1.0 Manage Products & Categories"]
-        P2["2.0 Manage Wholesale Suppliers"]
-        P3["3.0 Stock-In Processing (Algorithm 2)"]
-        P4["4.0 Stock-Out Billing (Algorithm 3)"]
-        P5["5.0 Stock Adjustments (Loss / Usage)"]
-        P6["6.0 Monthly Reports & Alerts (Algo 4, 5, 6, 7)"]
-    end
+- **Official Vector Diagram:** [docs/dfd_level_1.svg](dfd_level_1.svg)
+- **High-Resolution PNG Render:** [docs/dfd_level_1.png](dfd_level_1.png)
+- **Interactive Browser Viewer:** [docs/dfd_level_1.html](dfd_level_1.html)
 
-    subgraph DataStores ["Relational Data Stores (Database Tables)"]
-        D1[("D1: Category")]
-        D2[("D2: Product")]
-        D3[("D3: Supplier")]
-        D4[("D4: Purchase")]
-        D5[("D5: Purchase_Item")]
-        D6[("D6: Sales")]
-        D7[("D7: Sale_Item")]
-        D8[("D8: Inventory")]
-        D9[("D9: Stock_Movement")]
-    end
+#### Decomposed Sub-Processes:
+1. **1.0 Product & Supplier Setup:** Handles master catalog creation, category classification, wholesale supplier onboarding, and initial physical inventory balance setup ($0.000$).
+2. **2.0 Stock-In Procurement:** Processes wholesale delivery consignments, records purchase invoices with line items, increments inventory balance, recalculates Weighted Average Cost (WAC), and logs audit movements.
+3. **3.0 Point-of-Sale (POS) Billing:** Checks physical stock availability, generates itemized customer sale receipts, freezes unit cost for COGS determination, decrements on-hand inventory, and creates 'SALE' audit entries.
+4. **4.0 Stock Adjustment & Wastage:** Handles non-sale physical stock reductions (damaged produce, expired items, internal store usage), decrements inventory, and logs audit entries with remarks.
+5. **5.0 Analytics & Financial Reporting:** Generates low-stock reorder alerts, dead-stock flags ($\ge 90\text{ days}$ inactivity), total inventory valuation, and monthly gross profit statements ($\text{Revenue} - \text{COGS}$).
 
-    Admin -->|"Product details"| P1
-    P1 -->|"Write Category"| D1
-    P1 -->|"Write Product"| D2
-    P1 -->|"Initialize Stock"| D8
-    P1 -->|"Log Opening"| D9
-
-    Admin -->|"Supplier details"| P2
-    P2 -->|"Write Supplier"| D3
-
-    Admin -->|"Wholesale Invoice"| P3
-    D3 -.->|"Read Supplier"| P3
-    D2 -.->|"Read Product"| P3
-    P3 -->|"Insert Header"| D4
-    P3 -->|"Insert Items"| D5
-    P3 -->|"Update Stock & WAC Cost"| D8
-    P3 -->|"Log PURCHASE"| D9
-
-    Admin -->|"Customer Bill Request"| P4
-    D8 -.->|"Check Availability"| P4
-    D2 -.->|"Read Price & Unit"| P4
-    P4 -->|"Insert Header"| D6
-    P4 -->|"Insert Items (Frozen Cost)"| D7
-    P4 -->|"Deduct Stock"| D8
-    P4 -->|"Log SALE"| D9
-
-    Admin -->|"Internal Use / Damage"| P5
-    D8 -.->|"Check Stock"| P5
-    P5 -->|"Deduct Stock"| D8
-    P5 -->|"Log DAMAGE/INTERNAL"| D9
-
-    D8 -.->|"Query Stock Levels"| P6
-    D7 -.->|"Query Revenue & COGS"| P6
-    D5 -.->|"Query Purchase Spend"| P6
-    D9 -.->|"Audit Ledger History"| P6
-    P6 -->|"Low Stock Alerts (Algo 4)"| Admin
-    P6 -->|"Dead Stock Detection (Algo 7)"| Admin
-    P6 -->|"Financial Statements (Algo 5 & 6)"| Admin
-```
+#### Persistent Relational Data Stores (Gane & Sarson Notation):
+- **D1: Category** (`category_id`, `category_name`, `description`)
+- **D2: Product** (`product_id`, `product_name`, `unit`, `selling_price`, `reorder_level`)
+- **D3: Supplier** (`supplier_id`, `supplier_name`, `email`, `phone`, `address`)
+- **D4: Purchases & Purchase_Items** (`purchase_id`, `invoice_number`, `purchase_date`, `quantity`, `unit_cost`)
+- **D5: Sales & Sale_Items** (`sale_id`, `bill_number`, `sale_date`, `quantity`, `unit_selling_price`)
+- **D6: Inventory (Master Balance)** (`product_id`, `quantity_available`, `average_cost`, `last_updated`)
+- **D7: Stock_Movements (Audit Ledger)** (`movement_id`, `product_id`, `movement_type`, `quantity`, `remarks`)
 
 ---
 
