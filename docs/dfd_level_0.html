@@ -2,16 +2,16 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>0 Level DFD - StockWise</title>
+<title>0 Level DFD (Context Diagram) - StockWise</title>
 <style>
-  body { margin: 0; padding: 24px; background: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
-  .box { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 10px; max-width: 100%; }
+  body { margin: 0; padding: 24px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+  .box { background: white; border: 1px solid #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 10px; max-width: 100%; }
   svg { display: block; width: 100%; height: auto; }
 </style>
 </head>
 <body>
 <div class="box">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 400" width="1680" height="800">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="2000" height="1120">
   <defs>
     <!-- Standard black arrowhead -->
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -24,62 +24,90 @@
     .bg { fill: #ffffff; }
     .title { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; fill: #000000; }
     
-    /* Plain Black and White DFD Shapes */
-    .dfd-box { fill: #ffffff; stroke: #000000; stroke-width: 1.5; }
-    .dfd-oval { fill: #ffffff; stroke: #000000; stroke-width: 1.5; }
+    /* Entities and Process */
+    .entity-box { fill: #ffffff; stroke: #000000; stroke-width: 1.5; }
+    .process-circle { fill: #ffffff; stroke: #000000; stroke-width: 1.6; }
     
-    .box-text { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 500; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .entity-text { font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .entity-sub { font-family: Arial, Helvetica, sans-serif; font-size: 11px; fill: #333333; text-anchor: middle; dominant-baseline: central; }
     
-    .oval-text-bold { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
-    .oval-text { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 500; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .process-title { font-family: Arial, Helvetica, sans-serif; font-size: 15px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .process-text { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; fill: #111111; text-anchor: middle; dominant-baseline: central; }
     
-    /* Connectors and Labels */
+    /* Connectors and Flow Labels */
     .flow-line { stroke: #000000; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
-    .flow-label { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 500; fill: #000000; text-anchor: middle; }
+    .flow-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 500; fill: #000000; }
+    .flow-label-center { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 500; fill: #000000; text-anchor: middle; }
+    .flow-label-right { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 500; fill: #000000; text-anchor: end; }
     ]]>
   </style>
 
-  <!-- Pure White Background -->
-  <rect width="840" height="400" class="bg"/>
+  <!-- Pure White Canvas Background -->
+  <rect width="1000" height="560" class="bg"/>
 
-  <!-- Top-Left Title exactly like sample -->
-  <text x="35" y="45" class="title">0 Level DFD</text>
-
-
-  <!-- 1. CONNECTING ARROWS AND LABELS -->
-
-  <!-- Left Top Arrow: Users -> Central Process -->
-  <line x1="180" y1="210" x2="288" y2="210" class="flow-line"/>
-  <text x="234" y="198" class="flow-label">Purchase Grocery</text>
-
-  <!-- Left Bottom Arrow: Central Process -> Users -->
-  <line x1="288" y1="245" x2="183" y2="245" class="flow-line"/>
-  <text x="234" y="263" class="flow-label">Bill / Receipt</text>
-
-  <!-- Right Top Arrow: Central Process -> Admin -->
-  <line x1="552" y1="210" x2="657" y2="210" class="flow-line"/>
-  <text x="605" y="198" class="flow-label">View Details</text>
-
-  <!-- Right Bottom Arrow: Admin -> Central Process -->
-  <line x1="660" y1="245" x2="554" y2="245" class="flow-line"/>
-  <text x="605" y="263" class="flow-label">Manage Stock</text>
+  <!-- Top-Left Title -->
+  <text x="40" y="45" class="title">0 Level DFD (Context Diagram)</text>
 
 
-  <!-- 2. SHAPES (Drawn after lines so borders sit clean) -->
+  <!-- 1. DATA FLOW LINES AND LABELS -->
 
-  <!-- Left Box: Users (width 140, height 60, centered at x=110, y=228) -->
-  <rect x="40" y="198" width="140" height="60" class="dfd-box"/>
-  <text x="110" y="228" class="box-text">Users</text>
+  <!-- Between CUSTOMER (Left) and CENTRAL PROCESS -->
+  <!-- Customer to System (Orders and Payments) -->
+  <line x1="170" y1="315" x2="368" y2="315" class="flow-line"/>
+  <text x="268" y="303" class="flow-label-center">Grocery Orders &amp; Payments</text>
 
-  <!-- Center Oval: StockWise Grocery Inventory (rx=130, ry=65, centered at x=420, y=228) -->
-  <ellipse cx="420" cy="228" rx="130" ry="65" class="dfd-oval"/>
-  <text x="420" y="206" class="oval-text-bold">StockWise</text>
-  <text x="420" y="228" class="oval-text">Grocery</text>
-  <text x="420" y="250" class="oval-text">Inventory</text>
+  <!-- System to Customer (Bills and Receipts) -->
+  <line x1="370" y1="355" x2="173" y2="355" class="flow-line"/>
+  <text x="268" y="373" class="flow-label-center">Bill Invoices &amp; Return Receipts</text>
 
-  <!-- Right Box: Admin (width 140, height 60, centered at x=730, y=228) -->
-  <rect x="660" y="198" width="140" height="60" class="dfd-box"/>
-  <text x="730" y="228" class="box-text">Admin</text>
+
+  <!-- Between SUPPLIER (Top) and CENTRAL PROCESS -->
+  <!-- Supplier to System (Invoices and Delivery Batches) at x=465 -->
+  <line x1="465" y1="130" x2="465" y2="242" class="flow-line"/>
+  <text x="452" y="180" class="flow-label-right">Wholesale Invoices &amp;</text>
+  <text x="452" y="196" class="flow-label-right">Stock Delivery Batches</text>
+
+  <!-- System to Supplier (Purchase Orders and Returns) at x=535 -->
+  <line x1="535" y1="242" x2="535" y2="133" class="flow-line"/>
+  <text x="548" y="180" class="flow-label">Purchase Orders &amp;</text>
+  <text x="548" y="196" class="flow-label">Supplier Return Requests</text>
+
+
+  <!-- Between ADMIN (Right) and CENTRAL PROCESS -->
+  <!-- Admin to System (Catalog and Stock Adjustments) -->
+  <line x1="830" y1="355" x2="633" y2="355" class="flow-line"/>
+  <text x="732" y="373" class="flow-label-center">Product Catalog &amp; Stock Adjustments</text>
+
+  <!-- System to Admin (Reports and Stock Alerts) -->
+  <line x1="630" y1="315" x2="827" y2="315" class="flow-line"/>
+  <text x="732" y="303" class="flow-label-center">Stock Alerts &amp; Financial Reports</text>
+
+
+  <!-- 2. CENTRAL PROCESS (Single Bubble / Circle) -->
+  <!-- Center at x=500, y=335, rx=130, ry=90 -->
+  <ellipse cx="500" cy="335" rx="130" ry="90" class="process-circle"/>
+  <text x="500" y="305" class="process-title">StockWise</text>
+  <text x="500" y="328" class="process-text">Grocery Store Inventory</text>
+  <text x="500" y="348" class="process-text">Management System</text>
+  <text x="500" y="370" class="entity-sub">(0.0)</text>
+
+
+  <!-- 3. EXTERNAL ENTITIES (Rectangles) -->
+
+  <!-- ENTITY 1: Customer (Left) -->
+  <rect x="40" y="295" width="130" height="80" class="entity-box"/>
+  <text x="105" y="330" class="entity-text">Customer</text>
+  <text x="105" y="348" class="entity-sub">(Walk-in Buyer)</text>
+
+  <!-- ENTITY 2: Wholesale Supplier (Top) -->
+  <rect x="420" y="65" width="160" height="65" class="entity-box"/>
+  <text x="500" y="92" class="entity-text">Wholesale Supplier</text>
+  <text x="500" y="110" class="entity-sub">(Vendor / Distributor)</text>
+
+  <!-- ENTITY 3: Store Admin (Right) -->
+  <rect x="830" y="295" width="130" height="80" class="entity-box"/>
+  <text x="895" y="330" class="entity-text">Store Admin</text>
+  <text x="895" y="348" class="entity-sub">(Manager / Cashier)</text>
 
 </svg>
 </div>
