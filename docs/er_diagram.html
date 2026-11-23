@@ -34,14 +34,14 @@
 
     /* Attributes (Ellipses) */
     .attr-ellipse { fill: #dae8fc; stroke: #6c8ebf; stroke-width: 1.1; }
-    .attr-text { font-family: Helvetica, Arial, sans-serif; font-size: 9.5px; fill: #000000; text-anchor: middle; dominant-baseline: central; }
-    .attr-pk { font-family: Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; text-decoration: underline; }
+    .attr-text { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #000000; text-anchor: middle; dominant-baseline: central; }
+    .attr-pk { font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; text-decoration: underline; }
 
     /* Connectors */
     .conn-line { stroke: #555555; stroke-width: 1.1; fill: none; }
     .rel-line { stroke: #333333; stroke-width: 1.2; fill: none; }
 
-    /* Cardinality: simple, natural draw.io edge text */
+    /* Cardinality: natural draw.io edge text */
     .card-text { font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #000000; text-anchor: middle; dominant-baseline: central; }
   </style>
 
@@ -55,7 +55,7 @@
   <!-- ============================================================== -->
 
   <!-- CATEGORIES (203, 81) to PRODUCTS (511, 194) via contains (401, 80) -->
-  <path d="M 252 81 L 511 81 L 511 174" class="rel-line"/>
+  <path d="M 255 81 L 511 81 L 511 174" class="rel-line"/>
 
   <!-- SUPPLIERS (868, 81) to PURCHASES (868, 239) via supplies (867, 154) -->
   <line x1="868" y1="98" x2="868" y2="222" class="rel-line"/>
@@ -64,19 +64,19 @@
   <line x1="868" y1="256" x2="868" y2="376" class="rel-line"/>
 
   <!-- PRODUCTS (511, 194) to PURCHASE ITEMS (868, 393) via purchased_as (734, 316) -->
-  <line x1="562" y1="205" x2="820" y2="385" class="rel-line"/>
+  <line x1="564" y1="205" x2="805" y2="385" class="rel-line"/>
 
   <!-- SALES (163, 239) to SALE ITEMS (164, 393) via includes (164, 316) -->
   <line x1="163" y1="256" x2="164" y2="376" class="rel-line"/>
 
   <!-- PRODUCTS (511, 194) to SALE ITEMS (164, 393) via sold_as (300, 316) -->
-  <line x1="462" y1="205" x2="214" y2="385" class="rel-line"/>
+  <line x1="458" y1="205" x2="217" y2="385" class="rel-line"/>
 
-  <!-- PRODUCTS (511, 194) to STOCK MOVEMENTS (408, 392) via records (408, 316) -->
-  <line x1="485" y1="214" x2="408" y2="376" class="rel-line"/>
+  <!-- PRODUCTS (511, 194) to STOCK MOVEMENTS (400, 393) via records (408, 316) -->
+  <line x1="485" y1="214" x2="400" y2="376" class="rel-line"/>
 
-  <!-- PRODUCTS (511, 194) to INVENTORY (638, 393) via has (599, 316) -->
-  <line x1="538" y1="214" x2="638" y2="376" class="rel-line"/>
+  <!-- PRODUCTS (511, 194) to INVENTORY (642, 393) via has (599, 316) -->
+  <line x1="538" y1="214" x2="642" y2="376" class="rel-line"/>
 
 
   <!-- ============================================================== -->
@@ -88,40 +88,40 @@
   <text x="401" y="80" class="rel-text">contains</text>
 
   <!-- supplies: (867, 154) -->
-  <polygon points="867,136 902,154 867,172 832,154" class="rel-diamond"/>
+  <polygon points="867,136 903,154 867,172 831,154" class="rel-diamond"/>
   <text x="867" y="154" class="rel-text">supplies</text>
 
   <!-- includes (Purchases): (867, 316) -->
-  <polygon points="867,298 901,316 867,334 833,316" class="rel-diamond"/>
+  <polygon points="867,298 903,316 867,334 831,316" class="rel-diamond"/>
   <text x="867" y="316" class="rel-text">includes</text>
 
-  <!-- purchased_as: (734, 316) -->
-  <polygon points="734,298 775,316 734,334 693,316" class="rel-diamond"/>
+  <!-- purchased_as: (734, 316) - widened to 96px so text fits comfortably -->
+  <polygon points="734,298 782,316 734,334 686,316" class="rel-diamond"/>
   <text x="734" y="316" class="rel-text">purchased_as</text>
 
   <!-- includes (Sales): (164, 316) -->
-  <polygon points="164,298 198,316 164,334 130,316" class="rel-diamond"/>
+  <polygon points="164,298 200,316 164,334 128,316" class="rel-diamond"/>
   <text x="164" y="316" class="rel-text">includes</text>
 
   <!-- sold_as: (300, 316) -->
-  <polygon points="300,298 333,316 300,334 267,316" class="rel-diamond"/>
+  <polygon points="300,298 335,316 300,334 265,316" class="rel-diamond"/>
   <text x="300" y="316" class="rel-text">sold_as</text>
 
   <!-- records: (408, 316) -->
-  <polygon points="408,298 443,316 408,334 373,316" class="rel-diamond"/>
+  <polygon points="408,298 444,316 408,334 372,316" class="rel-diamond"/>
   <text x="408" y="316" class="rel-text">records</text>
 
   <!-- has: (599, 316) -->
-  <polygon points="599,298 634,316 599,334 564,316" class="rel-diamond"/>
+  <polygon points="599,298 630,316 599,334 568,316" class="rel-diamond"/>
   <text x="599" y="316" class="rel-text">has</text>
 
 
   <!-- ============================================================== -->
-  <!-- 3. CARDINALITY LABELS (Natural draw.io edge text)              -->
+  <!-- 3. CARDINALITY LABELS                                          -->
   <!-- ============================================================== -->
 
   <!-- Categories contains Products (1 : M) -->
-  <text x="268" y="72" class="card-text">1</text>
+  <text x="272" y="72" class="card-text">1</text>
   <text x="522" y="158" class="card-text">M</text>
 
   <!-- Suppliers supplies Purchases (1 : M) -->
@@ -150,7 +150,7 @@
 
   <!-- Products has Inventory (1 : 1) -->
   <text x="550" y="235" class="card-text">1</text>
-  <text x="625" y="362" class="card-text">1</text>
+  <text x="630" y="362" class="card-text">1</text>
 
 
   <!-- ============================================================== -->
@@ -171,8 +171,8 @@
   <ellipse cx="310" cy="34" rx="36" ry="14" class="attr-ellipse"/>
   <text x="310" y="34" class="attr-text">description</text>
 
-  <!-- Entity Box -->
-  <rect x="154" y="64" width="98" height="34" class="entity-rect"/>
+  <!-- Entity Box: 104x34 -->
+  <rect x="151" y="64" width="104" height="34" class="entity-rect"/>
   <text x="203" y="81" class="entity-text">CATEGORIES</text>
 
 
@@ -194,8 +194,8 @@
   <ellipse cx="975" cy="34" rx="28" ry="14" class="attr-ellipse"/>
   <text x="975" y="34" class="attr-text">email</text>
 
-  <!-- Entity Box -->
-  <rect x="820" y="64" width="96" height="34" class="entity-rect"/>
+  <!-- Entity Box: 100x34 -->
+  <rect x="818" y="64" width="100" height="34" class="entity-rect"/>
   <text x="868" y="81" class="entity-text">SUPPLIERS</text>
 
 
@@ -203,18 +203,18 @@
   <!-- 6. ENTITY 3: PRODUCTS (Center Hub)                             -->
   <!-- ============================================================== -->
   <!-- Attribute lines -->
-  <line x1="511" y1="194" x2="390" y2="142" class="conn-line"/>
-  <line x1="511" y1="194" x2="632" y2="142" class="conn-line"/>
+  <line x1="511" y1="194" x2="390" y2="138" class="conn-line"/>
+  <line x1="511" y1="194" x2="632" y2="138" class="conn-line"/>
   <line x1="511" y1="194" x2="370" y2="185" class="conn-line"/>
   <line x1="511" y1="194" x2="650" y2="185" class="conn-line"/>
-  <line x1="511" y1="194" x2="375" y2="228" class="conn-line"/>
+  <line x1="511" y1="194" x2="375" y2="232" class="conn-line"/>
 
   <!-- Attributes -->
-  <ellipse cx="390" cy="142" rx="36" ry="14" class="attr-ellipse"/>
-  <text x="390" y="142" class="attr-pk">product_id</text>
+  <ellipse cx="390" cy="138" rx="36" ry="14" class="attr-ellipse"/>
+  <text x="390" y="138" class="attr-pk">product_id</text>
 
-  <ellipse cx="632" cy="142" rx="42" ry="14" class="attr-ellipse"/>
-  <text x="632" y="142" class="attr-text">product_name</text>
+  <ellipse cx="632" cy="138" rx="42" ry="14" class="attr-ellipse"/>
+  <text x="632" y="138" class="attr-text">product_name</text>
 
   <ellipse cx="370" cy="185" rx="26" ry="13" class="attr-ellipse"/>
   <text x="370" y="185" class="attr-text">unit</text>
@@ -222,11 +222,11 @@
   <ellipse cx="650" cy="185" rx="38" ry="14" class="attr-ellipse"/>
   <text x="650" y="185" class="attr-text">selling_price</text>
 
-  <ellipse cx="375" cy="228" rx="38" ry="14" class="attr-ellipse"/>
-  <text x="375" y="228" class="attr-text">reorder_level</text>
+  <ellipse cx="375" cy="232" rx="38" ry="14" class="attr-ellipse"/>
+  <text x="375" y="232" class="attr-text">reorder_level</text>
 
-  <!-- Entity Box -->
-  <rect x="462" y="174" width="100" height="40" class="entity-rect"/>
+  <!-- Entity Box: 106x36 -->
+  <rect x="458" y="176" width="106" height="36" class="entity-rect"/>
   <text x="511" y="194" class="entity-text">PRODUCTS</text>
 
 
@@ -234,22 +234,22 @@
   <!-- 7. ENTITY 4: SALES (Middle Left)                               -->
   <!-- ============================================================== -->
   <!-- Attribute lines -->
-  <line x1="163" y1="239" x2="52" y2="239" class="conn-line"/>
-  <line x1="163" y1="239" x2="95" y2="182" class="conn-line"/>
+  <line x1="163" y1="239" x2="50" y2="239" class="conn-line"/>
+  <line x1="163" y1="239" x2="95" y2="180" class="conn-line"/>
   <line x1="163" y1="239" x2="275" y2="239" class="conn-line"/>
 
   <!-- Attributes -->
-  <ellipse cx="52" cy="239" rx="30" ry="14" class="attr-ellipse"/>
-  <text x="52" y="239" class="attr-pk">sale_id</text>
+  <ellipse cx="50" cy="239" rx="30" ry="14" class="attr-ellipse"/>
+  <text x="50" y="239" class="attr-pk">sale_id</text>
 
-  <ellipse cx="95" cy="182" rx="32" ry="14" class="attr-ellipse"/>
-  <text x="95" y="182" class="attr-text">sale_date</text>
+  <ellipse cx="95" cy="180" rx="32" ry="14" class="attr-ellipse"/>
+  <text x="95" y="180" class="attr-text">sale_date</text>
 
   <ellipse cx="275" cy="239" rx="36" ry="14" class="attr-ellipse"/>
   <text x="275" y="239" class="attr-text">bill_number</text>
 
-  <!-- Entity Box -->
-  <rect x="116" y="222" width="96" height="34" class="entity-rect"/>
+  <!-- Entity Box: 96x34 -->
+  <rect x="115" y="222" width="96" height="34" class="entity-rect"/>
   <text x="163" y="239" class="entity-text">SALES</text>
 
 
@@ -258,21 +258,21 @@
   <!-- ============================================================== -->
   <!-- Attribute lines -->
   <line x1="868" y1="239" x2="755" y2="239" class="conn-line"/>
-  <line x1="868" y1="239" x2="755" y2="182" class="conn-line"/>
+  <line x1="868" y1="239" x2="755" y2="180" class="conn-line"/>
   <line x1="868" y1="239" x2="980" y2="239" class="conn-line"/>
 
   <!-- Attributes -->
   <ellipse cx="755" cy="239" rx="36" ry="14" class="attr-ellipse"/>
   <text x="755" y="239" class="attr-pk">purchase_id</text>
 
-  <ellipse cx="755" cy="182" rx="36" ry="14" class="attr-ellipse"/>
-  <text x="755" y="182" class="attr-text">purchase_date</text>
+  <ellipse cx="755" cy="180" rx="36" ry="14" class="attr-ellipse"/>
+  <text x="755" y="180" class="attr-text">purchase_date</text>
 
   <ellipse cx="980" cy="239" rx="40" ry="14" class="attr-ellipse"/>
   <text x="980" y="239" class="attr-text">invoice_number</text>
 
-  <!-- Entity Box -->
-  <rect x="820" y="222" width="96" height="34" class="entity-rect"/>
+  <!-- Entity Box: 100x34 -->
+  <rect x="818" y="222" width="100" height="34" class="entity-rect"/>
   <text x="868" y="239" class="entity-text">PURCHASES</text>
 
 
@@ -280,26 +280,26 @@
   <!-- 9. ENTITY 6: SALE ITEMS (Bottom Left)                          -->
   <!-- ============================================================== -->
   <!-- Attribute lines -->
-  <line x1="164" y1="393" x2="55" y2="335" class="conn-line"/>
-  <line x1="164" y1="393" x2="45" y2="393" class="conn-line"/>
-  <line x1="164" y1="393" x2="55" y2="452" class="conn-line"/>
+  <line x1="164" y1="393" x2="52" y2="340" class="conn-line"/>
+  <line x1="164" y1="393" x2="42" y2="393" class="conn-line"/>
+  <line x1="164" y1="393" x2="52" y2="448" class="conn-line"/>
   <line x1="164" y1="393" x2="164" y2="465" class="conn-line"/>
 
-  <!-- Attributes -->
-  <ellipse cx="55" cy="335" rx="38" ry="14" class="attr-ellipse"/>
-  <text x="55" y="335" class="attr-pk">sale_item_id</text>
+  <!-- Attributes: appropriately sized so text sits comfortably inside -->
+  <ellipse cx="52" cy="340" rx="38" ry="14" class="attr-ellipse"/>
+  <text x="52" y="340" class="attr-pk">sale_item_id</text>
 
-  <ellipse cx="45" cy="393" rx="28" ry="14" class="attr-ellipse"/>
-  <text x="45" y="393" class="attr-text">quantity</text>
+  <ellipse cx="42" cy="393" rx="28" ry="14" class="attr-ellipse"/>
+  <text x="42" y="393" class="attr-text">quantity</text>
 
-  <ellipse cx="55" cy="452" rx="44" ry="14" class="attr-ellipse"/>
-  <text x="55" y="452" class="attr-text">unit_selling_price</text>
+  <ellipse cx="52" cy="448" rx="44" ry="14" class="attr-ellipse"/>
+  <text x="52" y="448" class="attr-text">unit_selling_price</text>
 
   <ellipse cx="164" cy="465" rx="44" ry="14" class="attr-ellipse"/>
   <text x="164" y="465" class="attr-text">unit_cost_at_sale</text>
 
-  <!-- Entity Box -->
-  <rect x="116" y="376" width="98" height="34" class="entity-rect"/>
+  <!-- Entity Box: 106x34 -->
+  <rect x="111" y="376" width="106" height="34" class="entity-rect"/>
   <text x="164" y="393" class="entity-text">SALE ITEMS</text>
 
 
@@ -307,84 +307,84 @@
   <!-- 10. ENTITY 7: STOCK MOVEMENTS (Bottom Center-Left)             -->
   <!-- ============================================================== -->
   <!-- Attribute lines -->
-  <line x1="408" y1="392" x2="305" y2="455" class="conn-line"/>
-  <line x1="408" y1="392" x2="380" y2="465" class="conn-line"/>
-  <line x1="408" y1="392" x2="455" y2="465" class="conn-line"/>
-  <line x1="408" y1="392" x2="520" y2="455" class="conn-line"/>
-  <line x1="408" y1="392" x2="335" y2="350" class="conn-line"/>
+  <line x1="400" y1="393" x2="310" y2="355" class="conn-line"/>
+  <line x1="400" y1="393" x2="275" y2="440" class="conn-line"/>
+  <line x1="400" y1="393" x2="345" y2="465" class="conn-line"/>
+  <line x1="400" y1="393" x2="425" y2="465" class="conn-line"/>
+  <line x1="400" y1="393" x2="492" y2="440" class="conn-line"/>
 
-  <!-- Attributes -->
-  <ellipse cx="305" cy="455" rx="38" ry="14" class="attr-ellipse"/>
-  <text x="305" y="455" class="attr-pk">movement_id</text>
+  <!-- Attributes: well spaced, non-overlapping -->
+  <ellipse cx="310" cy="355" rx="28" ry="13" class="attr-ellipse"/>
+  <text x="310" y="355" class="attr-text">remarks</text>
 
-  <ellipse cx="380" cy="465" rx="40" ry="14" class="attr-ellipse"/>
-  <text x="380" y="465" class="attr-text">movement_date</text>
+  <ellipse cx="275" cy="440" rx="36" ry="14" class="attr-ellipse"/>
+  <text x="275" y="440" class="attr-pk">movement_id</text>
 
-  <ellipse cx="455" cy="465" rx="40" ry="14" class="attr-ellipse"/>
-  <text x="455" y="465" class="attr-text">movement_type</text>
+  <ellipse cx="345" cy="465" rx="38" ry="14" class="attr-ellipse"/>
+  <text x="345" y="465" class="attr-text">movement_date</text>
 
-  <ellipse cx="520" cy="455" rx="30" ry="14" class="attr-ellipse"/>
-  <text x="520" y="455" class="attr-text">quantity</text>
+  <ellipse cx="425" cy="465" rx="38" ry="14" class="attr-ellipse"/>
+  <text x="425" y="465" class="attr-text">movement_type</text>
 
-  <ellipse cx="335" cy="350" rx="28" ry="14" class="attr-ellipse"/>
-  <text x="335" y="350" class="attr-text">remarks</text>
+  <ellipse cx="492" cy="440" rx="26" ry="13" class="attr-ellipse"/>
+  <text x="492" y="440" class="attr-text">quantity</text>
 
-  <!-- Entity Box -->
-  <rect x="360" y="376" width="98" height="34" class="entity-rect"/>
-  <text x="408" y="392" class="entity-text">STOCK MOVEMENTS</text>
+  <!-- Entity Box: widened to 134px so "STOCK MOVEMENTS" fits completely inside with padding! -->
+  <rect x="333" y="376" width="134" height="34" class="entity-rect"/>
+  <text x="400" y="393" class="entity-text">STOCK MOVEMENTS</text>
 
 
   <!-- ============================================================== -->
   <!-- 11. ENTITY 8: INVENTORY (Bottom Center-Right)                  -->
   <!-- ============================================================== -->
   <!-- Attribute lines -->
-  <line x1="638" y1="393" x2="540" y2="425" class="conn-line"/>
-  <line x1="638" y1="393" x2="600" y2="465" class="conn-line"/>
-  <line x1="638" y1="393" x2="685" y2="465" class="conn-line"/>
-  <line x1="638" y1="393" x2="735" y2="425" class="conn-line"/>
+  <line x1="642" y1="393" x2="565" y2="445" class="conn-line"/>
+  <line x1="642" y1="393" x2="635" y2="465" class="conn-line"/>
+  <line x1="642" y1="393" x2="710" y2="455" class="conn-line"/>
+  <line x1="642" y1="393" x2="740" y2="400" class="conn-line"/>
 
-  <!-- Attributes -->
-  <ellipse cx="540" cy="425" rx="36" ry="14" class="attr-ellipse"/>
-  <text x="540" y="425" class="attr-pk">product_id</text>
+  <!-- Attributes: completely separated from Stock Movements quantity! -->
+  <ellipse cx="565" cy="445" rx="32" ry="14" class="attr-ellipse"/>
+  <text x="565" y="445" class="attr-pk">product_id</text>
 
-  <ellipse cx="600" cy="465" rx="44" ry="14" class="attr-ellipse"/>
-  <text x="600" y="465" class="attr-text">quantity_available</text>
+  <ellipse cx="635" cy="465" rx="44" ry="14" class="attr-ellipse"/>
+  <text x="635" y="465" class="attr-text">quantity_available</text>
 
-  <ellipse cx="685" cy="465" rx="36" ry="14" class="attr-ellipse"/>
-  <text x="685" y="465" class="attr-text">average_cost</text>
+  <ellipse cx="710" cy="455" rx="34" ry="14" class="attr-ellipse"/>
+  <text x="710" y="455" class="attr-text">average_cost</text>
 
-  <ellipse cx="735" cy="425" rx="36" ry="14" class="attr-ellipse"/>
-  <text x="735" y="425" class="attr-text">last_updated</text>
+  <ellipse cx="740" cy="400" rx="34" ry="14" class="attr-ellipse"/>
+  <text x="740" y="400" class="attr-text">last_updated</text>
 
-  <!-- Entity Box -->
-  <rect x="590" y="376" width="96" height="34" class="entity-rect"/>
-  <text x="638" y="393" class="entity-text">INVENTORY</text>
+  <!-- Entity Box: 104x34 -->
+  <rect x="590" y="376" width="104" height="34" class="entity-rect"/>
+  <text x="642" y="393" class="entity-text">INVENTORY</text>
 
 
   <!-- ============================================================== -->
   <!-- 12. ENTITY 9: PURCHASE ITEMS (Bottom Right)                    -->
   <!-- ============================================================== -->
-  <!-- Attribute lines -->
-  <line x1="868" y1="393" x2="980" y2="335" class="conn-line"/>
-  <line x1="868" y1="393" x2="985" y2="393" class="conn-line"/>
-  <line x1="868" y1="393" x2="980" y2="452" class="conn-line"/>
-  <line x1="868" y1="393" x2="868" y2="465" class="conn-line"/>
+  <!-- Attribute lines: start cleanly outside the box right edge -->
+  <line x1="932" y1="380" x2="980" y2="340" class="conn-line"/>
+  <line x1="932" y1="393" x2="964" y2="393" class="conn-line"/>
+  <line x1="932" y1="406" x2="980" y2="448" class="conn-line"/>
+  <line x1="868" y1="410" x2="868" y2="465" class="conn-line"/>
 
   <!-- Attributes -->
-  <ellipse cx="980" cy="335" rx="42" ry="14" class="attr-ellipse"/>
-  <text x="980" y="335" class="attr-pk">purchase_item_id</text>
+  <ellipse cx="980" cy="340" rx="42" ry="14" class="attr-ellipse"/>
+  <text x="980" y="340" class="attr-pk">purchase_item_id</text>
 
   <ellipse cx="985" cy="393" rx="28" ry="14" class="attr-ellipse"/>
   <text x="985" y="393" class="attr-text">quantity</text>
 
-  <ellipse cx="980" cy="452" rx="32" ry="14" class="attr-ellipse"/>
-  <text x="980" y="452" class="attr-text">unit_cost</text>
+  <ellipse cx="980" cy="448" rx="30" ry="14" class="attr-ellipse"/>
+  <text x="980" y="448" class="attr-text">unit_cost</text>
 
-  <ellipse cx="868" cy="465" rx="34" ry="14" class="attr-ellipse"/>
+  <ellipse cx="868" cy="465" rx="32" ry="14" class="attr-ellipse"/>
   <text x="868" y="465" class="attr-text">expiry_date</text>
 
-  <!-- Entity Box -->
-  <rect x="820" y="376" width="96" height="34" class="entity-rect"/>
+  <!-- Entity Box: widened to 128px so "PURCHASE ITEMS" fits completely inside with padding! -->
+  <rect x="804" y="376" width="128" height="34" class="entity-rect"/>
   <text x="868" y="393" class="entity-text">PURCHASE ITEMS</text>
 
 </svg>
