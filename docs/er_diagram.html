@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockWise - ER Diagram (Chen Notation)</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  .header {
+    color: #f8fafc;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 { margin: 0 0 6px 0; font-size: 24px; }
+  .header p { margin: 0; color: #94a3b8; font-size: 14px; }
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    overflow: hidden;
+    max-width: 100%;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 2400px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>StockWise — Official Entity-Relationship (ER) Diagram</h1>
+    <p>Chen Notation &bull; 9 Normalized Tables &bull; Explicit Cardinality (1:1, 1:M) &bull; Accurate Grocery DBMS Schema</p>
+  </div>
+  <div class="card">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1260" width="2400" height="1260">
+  <defs>
+    <!-- Background Grid -->
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e3eaf2" stroke-width="0.8"/>
+    </pattern>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="1.5" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <style>
+    .bg { fill: #f8fafc; }
+    .grid-bg { fill: url(#grid); }
+    .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 26px; font-weight: bold; fill: #1b3a57; }
+    .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #5a738e; }
+    .legend-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #334e68; }
+
+    /* Entities (Rectangles) */
+    .entity-rect { fill: #d5e8d4; stroke: #82b366; stroke-width: 2; rx: 4; ry: 4; filter: url(#shadow); }
+    .entity-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1e4620; text-anchor: middle; dominant-baseline: central; letter-spacing: 0.5px; }
+
+    /* Relationships (Diamonds) */
+    .rel-diamond { fill: #fff2cc; stroke: #d6b656; stroke-width: 2; filter: url(#shadow); }
+    .rel-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 600; font-style: italic; fill: #7f6000; text-anchor: middle; dominant-baseline: central; }
+    .rel-card-tag { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #854d0e; text-anchor: middle; dominant-baseline: central; }
+
+    /* Attributes (Ellipses) */
+    .attr-ellipse { fill: #dae8fc; stroke: #6c8ebf; stroke-width: 1.6; filter: url(#shadow); }
+    .attr-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 500; fill: #1c3b70; text-anchor: middle; dominant-baseline: central; }
+    .attr-pk { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: bold; fill: #0d233a; text-anchor: middle; dominant-baseline: central; text-decoration: underline; }
+
+    /* Connecting Lines */
+    .conn-line { stroke: #5a738e; stroke-width: 1.5; }
+    .rel-line { stroke: #334e68; stroke-width: 2; }
+
+    /* Cardinality Badges */
+    .card-badge { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #b91c1c; text-anchor: middle; dominant-baseline: central; }
+    .card-bg { fill: #ffffff; stroke: #fca5a5; stroke-width: 1.4; rx: 4; ry: 4; filter: url(#shadow); }
+  </style>
+
+  <!-- Background -->
+  <rect width="2400" height="1260" class="bg"/>
+  <rect width="2400" height="1260" class="grid-bg"/>
+
+  <!-- Top Title Banner -->
+  <g transform="translate(60, 42)">
+    <rect x="-15" y="-22" width="680" height="58" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" rx="6" ry="6" filter="url(#shadow)"/>
+    <text class="title" x="0" y="3">StockWise — Grocery Store Inventory System</text>
+    <text class="subtitle" x="0" y="24">Chen ER Diagram with Explicit Cardinality Constraints (1:1, 1:M)</text>
+  </g>
+
+  <!-- Legend Box -->
+  <g transform="translate(1910, 22)">
+    <rect x="0" y="0" width="430" height="54" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" rx="6" ry="6" filter="url(#shadow)"/>
+    <!-- Entity sample -->
+    <rect x="15" y="15" width="55" height="24" class="entity-rect"/>
+    <text x="42" y="27" class="entity-text" font-size="10">ENTITY</text>
+    <text x="76" y="28" class="legend-text">Entity</text>
+    <!-- Rel sample -->
+    <polygon points="145,27 160,15 175,27 160,39" class="rel-diamond"/>
+    <text x="160" y="27" class="rel-text" font-size="8">rel</text>
+    <text x="183" y="28" class="legend-text">Relationship</text>
+    <!-- Attr sample -->
+    <ellipse cx="280" cy="27" rx="22" ry="11" class="attr-ellipse"/>
+    <text x="280" y="27" class="attr-pk" font-size="9"><u>PK</u></text>
+    <text x="310" y="28" class="legend-text">Attribute (<u>PK</u>)</text>
+    <!-- Cardinality sample -->
+    <rect x="380" y="16" width="34" height="22" class="card-bg"/>
+    <text x="397" y="27" class="card-badge" font-size="12">1:M</text>
+  </g>
+
+
+  <!-- ============================================================== -->
+  <!-- RELATIONSHIP LINES (drawn first so diamonds sit on top)       -->
+  <!-- ============================================================== -->
+
+  <!-- 1. CATEGORIES (300, 230) -contains- PRODUCTS (1100, 520) -->
+  <path d="M 380 230 L 1100 230 L 1100 496" fill="none" class="rel-line"/>
+
+  <!-- 2. SUPPLIERS (1900, 230) -supplies- PURCHASES (1900, 540) -->
+  <line x1="1900" y1="252" x2="1900" y2="518" class="rel-line"/>
+
+  <!-- 3. PURCHASES (1900, 540) -includes- PURCHASE ITEMS (1900, 890) -->
+  <line x1="1900" y1="562" x2="1900" y2="868" class="rel-line"/>
+
+  <!-- 4. PRODUCTS (1100, 520) -purchased_as- PURCHASE ITEMS (1900, 890) -->
+  <line x1="1190" y1="535" x2="1810" y2="875" class="rel-line"/>
+
+  <!-- 5. SALES (300, 540) -includes- SALE ITEMS (300, 890) -->
+  <line x1="300" y1="562" x2="300" y2="868" class="rel-line"/>
+
+  <!-- 6. PRODUCTS (1100, 520) -sold_as- SALE ITEMS (300, 890) -->
+  <line x1="1010" y1="535" x2="385" y2="875" class="rel-line"/>
+
+  <!-- 7. PRODUCTS (1100, 520) -records- STOCK MOVEMENTS (800, 890) -->
+  <line x1="1050" y1="544" x2="825" y2="868" class="rel-line"/>
+
+  <!-- 8. PRODUCTS (1100, 520) -has- INVENTORY (1400, 890) -->
+  <line x1="1150" y1="544" x2="1375" y2="868" class="rel-line"/>
+
+
+  <!-- ============================================================== -->
+  <!-- RELATIONSHIP DIAMONDS & LABELS                                 -->
+  <!-- ============================================================== -->
+
+  <!-- contains: (700, 230) [1:M] -->
+  <polygon points="700,202 775,230 700,258 625,230" class="rel-diamond"/>
+  <text x="700" y="224" class="rel-text">contains</text>
+  <text x="700" y="242" class="rel-card-tag">(1 : M)</text>
+
+  <!-- supplies: (1900, 385) [1:M] -->
+  <polygon points="1900,357 1975,385 1900,413 1825,385" class="rel-diamond"/>
+  <text x="1900" y="379" class="rel-text">supplies</text>
+  <text x="1900" y="397" class="rel-card-tag">(1 : M)</text>
+
+  <!-- includes (Purchases): (1900, 715) [1:M] -->
+  <polygon points="1900,687 1975,715 1900,743 1825,715" class="rel-diamond"/>
+  <text x="1900" y="709" class="rel-text">includes</text>
+  <text x="1900" y="727" class="rel-card-tag">(1 : M)</text>
+
+  <!-- purchased_as: (1500, 705) [1:M] -->
+  <polygon points="1500,677 1585,705 1500,733 1415,705" class="rel-diamond"/>
+  <text x="1500" y="699" class="rel-text">purchased_as</text>
+  <text x="1500" y="717" class="rel-card-tag">(1 : M)</text>
+
+  <!-- includes (Sales): (300, 715) [1:M] -->
+  <polygon points="300,687 375,715 300,743 225,715" class="rel-diamond"/>
+  <text x="300" y="709" class="rel-text">includes</text>
+  <text x="300" y="727" class="rel-card-tag">(1 : M)</text>
+
+  <!-- sold_as: (700, 705) [1:M] -->
+  <polygon points="700,677 775,705 700,733 625,705" class="rel-diamond"/>
+  <text x="700" y="699" class="rel-text">sold_as</text>
+  <text x="700" y="717" class="rel-card-tag">(1 : M)</text>
+
+  <!-- records: (925, 706) [1:M] -->
+  <polygon points="925,678 1000,706 925,734 850,706" class="rel-diamond"/>
+  <text x="925" y="700" class="rel-text">records</text>
+  <text x="925" y="718" class="rel-card-tag">(1 : M)</text>
+
+  <!-- has: (1262, 706) [1:1] -->
+  <polygon points="1262,678 1332,706 1262,734 1192,706" class="rel-diamond"/>
+  <text x="1262" y="700" class="rel-text">has</text>
+  <text x="1262" y="718" class="rel-card-tag">(1 : 1)</text>
+
+
+  <!-- ============================================================== -->
+  <!-- CARDINALITY BADGES (1, M) AT LINE ENDS                         -->
+  <!-- ============================================================== -->
+
+  <!-- Categories contains Products (1 : M) -->
+  <rect x="395" y="216" width="24" height="24" class="card-bg"/>
+  <text x="407" y="228" class="card-badge">1</text>
+  <rect x="1112" y="465" width="24" height="24" class="card-bg"/>
+  <text x="1124" y="477" class="card-badge">M</text>
+
+  <!-- Suppliers supplies Purchases (1 : M) -->
+  <rect x="1912" y="265" width="24" height="24" class="card-bg"/>
+  <text x="1924" y="277" class="card-badge">1</text>
+  <rect x="1912" y="485" width="24" height="24" class="card-bg"/>
+  <text x="1924" y="497" class="card-badge">M</text>
+
+  <!-- Purchases includes Purchase Items (1 : M) -->
+  <rect x="1912" y="580" width="24" height="24" class="card-bg"/>
+  <text x="1924" y="592" class="card-badge">1</text>
+  <rect x="1912" y="835" width="24" height="24" class="card-bg"/>
+  <text x="1924" y="847" class="card-badge">M</text>
+
+  <!-- Products purchased_as Purchase Items (1 : M) -->
+  <rect x="1225" y="555" width="24" height="24" class="card-bg"/>
+  <text x="1237" y="567" class="card-badge">1</text>
+  <rect x="1760" y="840" width="24" height="24" class="card-bg"/>
+  <text x="1772" y="852" class="card-badge">M</text>
+
+  <!-- Sales includes Sale Items (1 : M) -->
+  <rect x="312" y="580" width="24" height="24" class="card-bg"/>
+  <text x="324" y="592" class="card-badge">1</text>
+  <rect x="312" y="835" width="24" height="24" class="card-bg"/>
+  <text x="324" y="847" class="card-badge">M</text>
+
+  <!-- Products sold_as Sale Items (1 : M) -->
+  <rect x="965" y="555" width="24" height="24" class="card-bg"/>
+  <text x="976" y="567" class="card-badge">1</text>
+  <rect x="425" y="840" width="24" height="24" class="card-bg"/>
+  <text x="436" y="852" class="card-badge">M</text>
+
+  <!-- Products records Stock Movements (1 : M) -->
+  <rect x="1035" y="580" width="24" height="24" class="card-bg"/>
+  <text x="1047" y="592" class="card-badge">1</text>
+  <rect x="850" y="830" width="24" height="24" class="card-bg"/>
+  <text x="862" y="842" class="card-badge">M</text>
+
+  <!-- Products has Inventory (1 : 1) -->
+  <rect x="1165" y="580" width="24" height="24" class="card-bg"/>
+  <text x="1177" y="592" class="card-badge">1</text>
+  <rect x="1335" y="830" width="24" height="24" class="card-bg"/>
+  <text x="1347" y="842" class="card-badge">1</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 1: CATEGORIES (Top Left)                                -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="300" y1="230" x2="140" y2="140" class="conn-line"/>
+  <line x1="300" y1="230" x2="300" y2="120" class="conn-line"/>
+  <line x1="300" y1="230" x2="460" y2="140" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="140" cy="140" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="140" y="140" class="attr-pk">category_id</text>
+
+  <ellipse cx="300" cy="120" rx="65" ry="20" class="attr-ellipse"/>
+  <text x="300" y="120" class="attr-text">category_name</text>
+
+  <ellipse cx="460" cy="140" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="460" y="140" class="attr-text">description</text>
+
+  <!-- Entity Box -->
+  <rect x="220" y="208" width="160" height="44" class="entity-rect"/>
+  <text x="300" y="230" class="entity-text">CATEGORIES</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 2: SUPPLIERS (Top Right)                                -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="1900" y1="230" x2="1730" y2="135" class="conn-line"/>
+  <line x1="1900" y1="230" x2="1900" y2="120" class="conn-line"/>
+  <line x1="1900" y1="230" x2="2070" y2="135" class="conn-line"/>
+  <line x1="1900" y1="230" x2="1730" y2="205" class="conn-line"/>
+  <line x1="1900" y1="230" x2="2070" y2="205" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="1730" cy="135" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="1730" y="135" class="attr-pk">supplier_id</text>
+
+  <ellipse cx="1900" cy="120" rx="65" ry="20" class="attr-ellipse"/>
+  <text x="1900" y="120" class="attr-text">supplier_name</text>
+
+  <ellipse cx="2070" cy="135" rx="45" ry="20" class="attr-ellipse"/>
+  <text x="2070" y="135" class="attr-text">email</text>
+
+  <ellipse cx="1730" cy="205" rx="45" ry="20" class="attr-ellipse"/>
+  <text x="1730" y="205" class="attr-text">phone</text>
+
+  <ellipse cx="2070" cy="205" rx="50" ry="20" class="attr-ellipse"/>
+  <text x="2070" y="205" class="attr-text">address</text>
+
+  <!-- Entity Box -->
+  <rect x="1820" y="208" width="160" height="44" class="entity-rect"/>
+  <text x="1900" y="230" class="entity-text">SUPPLIERS</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 3: PRODUCTS (Center Hub)                                -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="1100" y1="520" x2="920" y2="410" class="conn-line"/>
+  <line x1="1100" y1="520" x2="1280" y2="410" class="conn-line"/>
+  <line x1="1100" y1="520" x2="880" y2="485" class="conn-line"/>
+  <line x1="1100" y1="520" x2="1320" y2="485" class="conn-line"/>
+  <line x1="1100" y1="520" x2="880" y2="555" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="920" cy="410" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="920" y="410" class="attr-pk">product_id</text>
+
+  <ellipse cx="1280" cy="410" rx="65" ry="20" class="attr-ellipse"/>
+  <text x="1280" y="410" class="attr-text">product_name</text>
+
+  <ellipse cx="880" cy="485" rx="40" ry="20" class="attr-ellipse"/>
+  <text x="880" y="485" class="attr-text">unit</text>
+
+  <ellipse cx="1320" cy="485" rx="60" ry="20" class="attr-ellipse"/>
+  <text x="1320" y="485" class="attr-text">selling_price</text>
+
+  <ellipse cx="880" cy="555" rx="60" ry="20" class="attr-ellipse"/>
+  <text x="880" y="555" class="attr-text">reorder_level</text>
+
+  <!-- Entity Box -->
+  <rect x="1010" y="496" width="180" height="48" class="entity-rect"/>
+  <text x="1100" y="520" class="entity-text">PRODUCTS</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 4: SALES (Middle Left)                                  -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="300" y1="540" x2="130" y2="470" class="conn-line"/>
+  <line x1="300" y1="540" x2="110" y2="540" class="conn-line"/>
+  <line x1="300" y1="540" x2="130" y2="610" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="130" cy="470" rx="48" ry="20" class="attr-ellipse"/>
+  <text x="130" y="470" class="attr-pk">sale_id</text>
+
+  <ellipse cx="110" cy="540" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="110" y="540" class="attr-text">bill_number</text>
+
+  <ellipse cx="130" cy="610" rx="50" ry="20" class="attr-ellipse"/>
+  <text x="130" y="610" class="attr-text">sale_date</text>
+
+  <!-- Entity Box -->
+  <rect x="225" y="518" width="150" height="44" class="entity-rect"/>
+  <text x="300" y="540" class="entity-text">SALES</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 5: PURCHASES (Middle Right)                             -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="1900" y1="540" x2="1710" y2="470" class="conn-line"/>
+  <line x1="1900" y1="540" x2="2090" y2="470" class="conn-line"/>
+  <line x1="1900" y1="540" x2="1710" y2="540" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="1710" cy="470" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="1710" y="470" class="attr-pk">purchase_id</text>
+
+  <ellipse cx="2090" cy="470" rx="65" ry="20" class="attr-ellipse"/>
+  <text x="2090" y="470" class="attr-text">invoice_number</text>
+
+  <ellipse cx="1710" cy="540" rx="58" ry="20" class="attr-ellipse"/>
+  <text x="1710" y="540" class="attr-text">purchase_date</text>
+
+  <!-- Entity Box -->
+  <rect x="1820" y="518" width="160" height="44" class="entity-rect"/>
+  <text x="1900" y="540" class="entity-text">PURCHASES</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 6: SALE ITEMS (Bottom Left)                             -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="300" y1="890" x2="115" y2="815" class="conn-line"/>
+  <line x1="300" y1="890" x2="105" y2="890" class="conn-line"/>
+  <line x1="300" y1="890" x2="115" y2="970" class="conn-line"/>
+  <line x1="300" y1="890" x2="240" y2="1025" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="115" cy="815" rx="60" ry="20" class="attr-ellipse"/>
+  <text x="115" y="815" class="attr-pk">sale_item_id</text>
+
+  <ellipse cx="105" cy="890" rx="45" ry="20" class="attr-ellipse"/>
+  <text x="105" y="890" class="attr-text">quantity</text>
+
+  <ellipse cx="115" cy="970" rx="72" ry="20" class="attr-ellipse"/>
+  <text x="115" y="970" class="attr-text">unit_selling_price</text>
+
+  <ellipse cx="240" cy="1025" rx="72" ry="20" class="attr-ellipse"/>
+  <text x="240" y="1025" class="attr-text">unit_cost_at_sale</text>
+
+  <!-- Entity Box -->
+  <rect x="215" y="868" width="170" height="44" class="entity-rect"/>
+  <text x="300" y="890" class="entity-text">SALE ITEMS</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 7: STOCK MOVEMENTS (Bottom Center-Left)                 -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="800" y1="890" x2="655" y2="985" class="conn-line"/>
+  <line x1="800" y1="890" x2="775" y2="1055" class="conn-line"/>
+  <line x1="800" y1="890" x2="915" y2="1055" class="conn-line"/>
+  <line x1="800" y1="890" x2="995" y2="985" class="conn-line"/>
+  <line x1="800" y1="890" x2="800" y2="810" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="655" cy="985" rx="62" ry="20" class="attr-ellipse"/>
+  <text x="655" y="985" class="attr-pk">movement_id</text>
+
+  <ellipse cx="775" cy="1055" rx="64" ry="20" class="attr-ellipse"/>
+  <text x="775" y="1055" class="attr-text">movement_date</text>
+
+  <ellipse cx="915" cy="1055" rx="64" ry="20" class="attr-ellipse"/>
+  <text x="915" y="1055" class="attr-text">movement_type</text>
+
+  <ellipse cx="995" cy="985" rx="48" ry="20" class="attr-ellipse"/>
+  <text x="995" y="985" class="attr-text">quantity</text>
+
+  <ellipse cx="800" cy="810" rx="48" ry="20" class="attr-ellipse"/>
+  <text x="800" y="810" class="attr-text">remarks</text>
+
+  <!-- Entity Box -->
+  <rect x="705" y="868" width="190" height="44" class="entity-rect"/>
+  <text x="800" y="890" class="entity-text">STOCK MOVEMENTS</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 8: INVENTORY (Bottom Center-Right)                      -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="1400" y1="890" x2="1235" y2="985" class="conn-line"/>
+  <line x1="1400" y1="890" x2="1345" y2="1055" class="conn-line"/>
+  <line x1="1400" y1="890" x2="1485" y2="1055" class="conn-line"/>
+  <line x1="1400" y1="890" x2="1585" y2="985" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="1235" cy="985" rx="58" ry="20" class="attr-ellipse"/>
+  <text x="1235" y="985" class="attr-pk">product_id</text>
+
+  <ellipse cx="1345" cy="1055" rx="72" ry="20" class="attr-ellipse"/>
+  <text x="1345" y="1055" class="attr-text">quantity_available</text>
+
+  <ellipse cx="1485" cy="1055" rx="58" ry="20" class="attr-ellipse"/>
+  <text x="1485" y="1055" class="attr-text">average_cost</text>
+
+  <ellipse cx="1585" cy="985" rx="58" ry="20" class="attr-ellipse"/>
+  <text x="1585" y="985" class="attr-text">last_updated</text>
+
+  <!-- Entity Box -->
+  <rect x="1315" y="868" width="170" height="44" class="entity-rect"/>
+  <text x="1400" y="890" class="entity-text">INVENTORY</text>
+
+
+  <!-- ============================================================== -->
+  <!-- ENTITY 9: PURCHASE ITEMS (Bottom Right)                        -->
+  <!-- ============================================================== -->
+  <!-- Attribute lines -->
+  <line x1="1900" y1="890" x2="2090" y2="815" class="conn-line"/>
+  <line x1="1900" y1="890" x2="2100" y2="890" class="conn-line"/>
+  <line x1="1900" y1="890" x2="2090" y2="970" class="conn-line"/>
+  <line x1="1900" y1="890" x2="1955" y2="1025" class="conn-line"/>
+
+  <!-- Attributes -->
+  <ellipse cx="2090" cy="815" rx="68" ry="20" class="attr-ellipse"/>
+  <text x="2090" y="815" class="attr-pk">purchase_item_id</text>
+
+  <ellipse cx="2100" cy="890" rx="48" ry="20" class="attr-ellipse"/>
+  <text x="2100" y="890" class="attr-text">quantity</text>
+
+  <ellipse cx="2090" cy="970" rx="50" ry="20" class="attr-ellipse"/>
+  <text x="2090" y="970" class="attr-text">unit_cost</text>
+
+  <ellipse cx="1955" cy="1025" rx="55" ry="20" class="attr-ellipse"/>
+  <text x="1955" y="1025" class="attr-text">expiry_date</text>
+
+  <!-- Entity Box -->
+  <rect x="1810" y="868" width="180" height="44" class="entity-rect"/>
+  <text x="1900" y="890" class="entity-text">PURCHASE ITEMS</text>
+
+</svg>
+  </div>
+</body>
+</html>
