@@ -16,12 +16,6 @@ if (isLoggedIn()) {
     exit;
 }
 
-// Check if primary account setup is needed
-if (isPrimarySetupPending()) {
-    header('Location: ' . BASE_URL . 'setup.php');
-    exit;
-}
-
 $error = '';
 $errors = [];
 
@@ -63,18 +57,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = getDBConnection();
 
-            // Check for duplicate email
-            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `users` WHERE `email` = ?");
+            // Check for duplicate email (excluding placeholder)
+            $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `users` WHERE `email` = ? AND `email` != 'pending_setup@stockwise.local'");
             $stmtCheck->execute([$email]);
             if ((int)$stmtCheck->fetchColumn() > 0) {
                 $errors[] = 'An account with this email address already exists.';
             } else {
-                // Create new account
                 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO `users` (`full_name`, `email`, `mobile`, `password_hash`, `is_primary`, `is_setup_complete`) VALUES (?, ?, ?, ?, 0, 1)");
-                $stmt->execute([$full_name, $email, $mobile, $passwordHash]);
 
-                $_SESSION['flash_success'] = "Account created successfully! Please sign in.";
+                // If primary account setup is pending and registering as Samarth Naik, activate primary account (user_id = 1)
+                if (isPrimarySetupPending() && strcasecmp(trim($full_name), 'Samarth Naik') === 0) {
+                    $stmt = $pdo->prepare("UPDATE `users` SET `full_name` = 'Samarth Naik', `email` = ?, `mobile` = ?, `password_hash` = ?, `is_setup_complete` = 1 WHERE `user_id` = 1");
+                    $stmt->execute([$email, $mobile, $passwordHash]);
+                } else {
+                    // Create new independent account
+                    $stmt = $pdo->prepare("INSERT INTO `users` (`full_name`, `email`, `mobile`, `password_hash`, `is_primary`, `is_setup_complete`) VALUES (?, ?, ?, ?, 0, 1)");
+                    $stmt->execute([$full_name, $email, $mobile, $passwordHash]);
+                }
+
                 header('Location: ' . BASE_URL . 'login.php');
                 exit;
             }

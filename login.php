@@ -16,12 +16,6 @@ if (isLoggedIn()) {
     exit;
 }
 
-// Check if primary account setup is needed
-if (isPrimarySetupPending()) {
-    header('Location: ' . BASE_URL . 'setup.php');
-    exit;
-}
-
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -121,6 +115,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="login-footer">
             <p>Don't have an account? <a href="<?= BASE_URL ?>register.php">Create Account</a></p>
+            <?php if (isPrimarySetupPending()): ?>
+                <p style="margin-top: 0.5rem; font-size: 0.82rem;">
+                    <a href="<?= BASE_URL ?>setup.php" style="color: var(--text-muted); text-decoration: underline;">First time? Activate primary account (Samarth Naik)</a>
+                </p>
+            <?php endif; ?>
         </div>
     </div>
 
