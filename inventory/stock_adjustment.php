@@ -4,11 +4,14 @@ $pageTitle = 'Record Stock Adjustment';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
 
-$products = $pdo->query("
+$stmtProd = $pdo->prepare("
     SELECT 
         p.product_id, 
         p.product_name, 
@@ -19,8 +22,11 @@ $products = $pdo->query("
     FROM `Product` p 
     JOIN `Category` c ON p.category_id = c.category_id
     JOIN `Inventory` i ON p.product_id = i.product_id 
+    WHERE p.user_id = ?
     ORDER BY c.category_name ASC, p.product_name ASC
-")->fetchAll();
+");
+$stmtProd->execute([$userId]);
+$products = $stmtProd->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id = (int)($_POST['product_id'] ?? 0);
@@ -36,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($remarks === '') {
         $error = 'Please provide an audit reason/remark for this stock adjustment.';
     } else {
-        $result = recordStockAdjustment($product_id, $movement_date, $movement_type, $quantity, $remarks);
+        $result = recordStockAdjustment($product_id, $movement_date, $movement_type, $quantity, $remarks, $userId);
         if ($result['success']) {
             $_SESSION['flash_success'] = "Stock adjustment '{$movement_type}' recorded successfully for {$quantity} units.";
             header("Location: " . BASE_URL . "inventory/stock_history.php");

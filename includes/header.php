@@ -3,14 +3,22 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/auth.php';
+
+$_currentUserId = getCurrentUserId();
 
 // Quick counts for badges
 $lowStockCount = 0;
 $deadStockCount = 0;
 try {
     $db = getDBConnection();
-    $lowStockCount = (int)$db->query("SELECT COUNT(*) FROM `Low_Stock_Products`")->fetchColumn();
-    $deadStockCount = (int)$db->query("SELECT COUNT(*) FROM `Dead_Stock_Products`")->fetchColumn();
+    // Filter views by user_id if possible, fallback to unfiltered for view compatibility
+    $stmtLow = $db->prepare("SELECT COUNT(*) FROM `Low_Stock_Products` lsp JOIN `Product` p ON lsp.product_id = p.product_id WHERE p.user_id = ?");
+    $stmtLow->execute([$_currentUserId]);
+    $lowStockCount = (int)$stmtLow->fetchColumn();
+    $stmtDead = $db->prepare("SELECT COUNT(*) FROM `Dead_Stock_Products` dsp JOIN `Product` p ON dsp.product_id = p.product_id WHERE p.user_id = ?");
+    $stmtDead->execute([$_currentUserId]);
+    $deadStockCount = (int)$stmtDead->fetchColumn();
 } catch (Exception $e) {
     // If database or views are not yet imported
 }
@@ -71,6 +79,10 @@ if (!isset($pageTitle)) {
                     </li>
                 </ul>
             </nav>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-left: 1rem;">
+                <span style="color: #a3b18a; font-size: 0.85rem;">👤 <?= htmlspecialchars(getCurrentUserName()) ?></span>
+                <a href="<?= BASE_URL ?>logout.php" class="btn btn-outline btn-sm" style="color: #e9ecef; border-color: rgba(255,255,255,0.2); font-size: 0.8rem;">Logout</a>
+            </div>
         </div>
     </header>
 

@@ -4,17 +4,24 @@ $pageTitle = 'Record Purchase (Stock-In)';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 
-$suppliers = $pdo->query("SELECT supplier_id, supplier_name FROM `Supplier` ORDER BY supplier_name ASC")->fetchAll();
-$products = $pdo->query("
+$stmtSup = $pdo->prepare("SELECT supplier_id, supplier_name FROM `Supplier` WHERE user_id = ? ORDER BY supplier_name ASC");
+$stmtSup->execute([$userId]);
+$suppliers = $stmtSup->fetchAll();
+
+$stmtProd = $pdo->prepare("
     SELECT p.product_id, p.product_name, p.unit, p.selling_price, p.supplier_id,
            COALESCE(i.quantity_available, 0) as quantity_available, 
            COALESCE(i.average_cost, 0) as average_cost
     FROM `Product` p
     LEFT JOIN `Inventory` i ON p.product_id = i.product_id
+    WHERE p.user_id = ?
     ORDER BY p.product_name ASC
-")->fetchAll();
+");
+$stmtProd->execute([$userId]);
+$products = $stmtProd->fetchAll();
 
 // Build mapping of supplier_id => array of product_ids (both primary vendor & past purchase history)
 $supplierProductMap = [];
@@ -23,7 +30,8 @@ foreach ($products as $p) {
         $supplierProductMap[(int)$p['supplier_id']][] = (int)$p['product_id'];
     }
 }
-$histStmt = $pdo->query("SELECT DISTINCT pu.supplier_id, pi.product_id FROM `Purchase` pu JOIN `Purchase_Item` pi ON pu.purchase_id = pi.purchase_id");
+$histStmt = $pdo->prepare("SELECT DISTINCT pu.supplier_id, pi.product_id FROM `Purchase` pu JOIN `Purchase_Item` pi ON pu.purchase_id = pi.purchase_id WHERE pu.user_id = ?");
+$histStmt->execute([$userId]);
 while ($row = $histStmt->fetch()) {
     $sid = (int)$row['supplier_id'];
     $pid = (int)$row['product_id'];
@@ -70,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($items)) {
             $error = 'Please enter valid positive quantities for the purchase items.';
         } else {
-            $result = recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number, $items);
+            $result = recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number, $items, $userId);
             if ($result['success']) {
                 $_SESSION['flash_success'] = "Purchase invoice {$invoice_number} recorded successfully! Inventory balances and Weighted Average Costs have been updated.";
                 header("Location: " . BASE_URL . "purchases/purchases.php?view=" . $result['purchase_id']);

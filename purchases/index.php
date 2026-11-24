@@ -1,24 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/bootstrap.php';$pageTitle='Purchases';$activePage='purchases/index.php';$basePath='../';
-if($_SERVER['REQUEST_METHOD']==='POST'){
- verify_csrf();
- try{
-  $supplier=(int)($_POST['supplier_id']??0);$date=(string)($_POST['purchase_date']??date('Y-m-d'));$invoice=trim((string)($_POST['invoice_number']??''));$ids=$_POST['product_id']??[];$quantities=$_POST['quantity']??[];$costs=$_POST['unit_cost']??[];$expiries=$_POST['expiry_date']??[];
-  if($supplier<1||$invoice==='')throw new RuntimeException('Supplier and invoice number are required.');
-  if(!DateTime::createFromFormat('Y-m-d',$date))throw new RuntimeException('Invalid purchase date.');
-  $lines=[];foreach($ids as $i=>$pid){if((int)$pid<1)continue;$q=positive_decimal($quantities[$i]??null,'Purchase quantity');$c=nonnegative_money($costs[$i]??null,'Unit cost');$lines[]=['id'=>(int)$pid,'qty'=>$q,'cost'=>$c,'expiry'=>trim((string)($expiries[$i]??''))?:null];}
-  if(!$lines)throw new RuntimeException('Add at least one product line.');
-  $pdo->beginTransaction();$s=$pdo->prepare('INSERT INTO purchases(supplier_id,purchase_date,invoice_number) VALUES(?,?,?)');$s->execute([$supplier,$date,$invoice]);$purchaseId=(int)$pdo->lastInsertId();
-  $item=$pdo->prepare('INSERT INTO purchase_items(purchase_id,product_id,quantity,unit_cost,expiry_date) VALUES(?,?,?,?,?)');
-  foreach($lines as $line){$item->execute([$purchaseId,$line['id'],$line['qty'],$line['cost'],$line['expiry']]);apply_inbound($pdo,$line['id'],'PURCHASE',$line['qty'],$line['cost'],'Supplier purchase',$invoice,$date . ' ' . date('H:i:s'));}
-  $pdo->commit();flash('success','Purchase '.$invoice.' recorded. Inventory and stock history updated.');
- }catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();flash('error','Purchase was not saved: '.$e->getMessage());}
- redirect('index.php');
-}
-$suppliers=$pdo->query('SELECT supplier_id,supplier_name FROM suppliers ORDER BY supplier_name')->fetchAll();$products=product_options($pdo);
-$history=$pdo->query('SELECT p.purchase_id,p.purchase_date,p.invoice_number,s.supplier_name,COALESCE(SUM(pi.quantity*pi.unit_cost),0) total FROM purchases p JOIN suppliers s ON s.supplier_id=p.supplier_id LEFT JOIN purchase_items pi ON pi.purchase_id=p.purchase_id GROUP BY p.purchase_id ORDER BY p.purchase_date DESC,p.purchase_id DESC LIMIT 30')->fetchAll();
-require __DIR__.'/../includes/header.php';?>
-<section class="page-heading"><div><p class="eyebrow">STOCK IN</p><h1>Purchases</h1><p class="muted">Record supplier invoices. Stock and weighted average cost update automatically.</p></div></section>
-<section class="panel"><h2>Record a purchase</h2><?php if(!$suppliers||!$products):?><div class="alert warning">Add at least one supplier and one product before recording a purchase.</div><?php else:?><form method="post" id="line-form"><?=csrf_field()?><div class="form-grid three"><label>Supplier<select name="supplier_id" required><option value="">Select supplier</option><?php foreach($suppliers as $s):?><option value="<?=(int)$s['supplier_id']?>"><?=e($s['supplier_name'])?></option><?php endforeach;?></select></label><label>Purchase date<input type="date" name="purchase_date" required value="<?=date('Y-m-d')?>"></label><label>Invoice number<input name="invoice_number" required maxlength="50" placeholder="PUR-2026-001"></label></div><div class="line-items"><div class="line-heading"><h3>Purchased products</h3><button class="btn secondary small" type="button" data-add-row="purchase">+ Add product</button></div><div id="purchase-lines"><div class="item-row"><label>Product<select name="product_id[]" required><option value="">Select product</option><?php foreach($products as $p):?><option value="<?=(int)$p['product_id']?>"><?=e($p['product_name'])?> (<?=e($p['unit'])?>)</option><?php endforeach;?></select></label><label>Quantity<input name="quantity[]" type="number" min="0.001" step="0.001" required placeholder="e.g. 12.500"></label><label>Cost / unit (₹)<input name="unit_cost[]" type="number" min="0" step="0.01" required placeholder="e.g. 45.00"></label><label>Expiry date (optional)<input name="expiry_date[]" type="date"></label><button class="remove-row" type="button" aria-label="Remove row">×</button></div></div></div><button class="btn primary" type="submit">Save purchase and update stock</button></form><?php endif;?></section>
-<section class="panel"><div class="panel-heading"><h2>Recent purchases</h2><span class="count-label">Latest 30</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Supplier</th><th>Purchase expenditure</th></tr></thead><tbody><?php foreach($history as $h):?><tr><td><?=e(date('d M Y',strtotime($h['purchase_date'])))?></td><td><?=e($h['invoice_number'])?></td><td><?=e($h['supplier_name'])?></td><td><?=money($h['total'])?></td></tr><?php endforeach;?></tbody></table></div></section>
-<?php require __DIR__.'/../includes/footer.php';?>
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/auth.php';
+header('Location: ' . BASE_URL . 'purchases/purchases.php');
+exit;

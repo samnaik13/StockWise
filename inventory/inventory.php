@@ -4,9 +4,12 @@ $pageTitle = 'Current Inventory Valuation & Stock';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
-// Fetch all items for overall inventory metric cards
-$allStatus = $pdo->query("SELECT * FROM `Product_Inventory_Status`")->fetchAll();
+// Fetch all items for overall inventory metric cards scoped to user
+$stmtAll = $pdo->prepare("SELECT v.* FROM `Product_Inventory_Status` v JOIN `Product` p ON v.product_id = p.product_id WHERE p.user_id = ?");
+$stmtAll->execute([$userId]);
+$allStatus = $stmtAll->fetchAll();
 
 $totalQty = 0;
 $totalValuation = 0;
@@ -20,8 +23,10 @@ foreach ($allStatus as $item) {
     if ($item['stock_status'] === 'Out of Stock') $outCount++;
 }
 
-// Categories for filter dropdown
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
+// Categories for filter dropdown scoped to user
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
 
 // Handle Search, Category Filter, and Sorting
 $search = trim($_GET['search'] ?? '');
@@ -34,9 +39,9 @@ $query = "
         p.category_id
     FROM `Product_Inventory_Status` v
     JOIN `Product` p ON v.product_id = p.product_id
-    WHERE 1=1
+    WHERE p.user_id = ?
 ";
-$params = [];
+$params = [$userId];
 
 if ($search !== '') {
     $query .= " AND (v.product_name LIKE ? OR v.product_id = ?)";

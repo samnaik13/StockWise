@@ -4,6 +4,7 @@ $pageTitle = 'Edit Grocery Product';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $product_id = (int)($_GET['id'] ?? 0);
 
 if ($product_id <= 0) {
@@ -11,8 +12,8 @@ if ($product_id <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT * FROM `Product` WHERE `product_id` = ?");
-$stmt->execute([$product_id]);
+$stmt = $pdo->prepare("SELECT * FROM `Product` WHERE `product_id` = ? AND `user_id` = ?");
+$stmt->execute([$product_id, $userId]);
 $product = $stmt->fetch();
 
 if (!$product) {
@@ -21,8 +22,13 @@ if (!$product) {
     exit;
 }
 
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
-$suppliers = $pdo->query("SELECT supplier_id, supplier_name FROM `Supplier` ORDER BY supplier_name ASC")->fetchAll();
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
+
+$stmtSup = $pdo->prepare("SELECT supplier_id, supplier_name FROM `Supplier` WHERE user_id = ? ORDER BY supplier_name ASC");
+$stmtSup->execute([$userId]);
+$suppliers = $stmtSup->fetchAll();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -43,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Selling price and reorder level cannot be negative.';
     } else {
         try {
-            $stmtUpdate = $pdo->prepare("UPDATE `Product` SET `product_name` = ?, `category_id` = ?, `supplier_id` = ?, `selling_price` = ?, `reorder_level` = ?, `unit` = ? WHERE `product_id` = ?");
-            $stmtUpdate->execute([$product_name, $category_id, $supplier_id, $selling_price, $reorder_level, $unit, $product_id]);
+            $stmtUpdate = $pdo->prepare("UPDATE `Product` SET `product_name` = ?, `category_id` = ?, `supplier_id` = ?, `selling_price` = ?, `reorder_level` = ?, `unit` = ? WHERE `product_id` = ? AND `user_id` = ?");
+            $stmtUpdate->execute([$product_name, $category_id, $supplier_id, $selling_price, $reorder_level, $unit, $product_id, $userId]);
 
             $_SESSION['flash_success'] = "Product #{$product_id} ('{$product_name}') updated successfully.";
             header("Location: " . BASE_URL . "products/view_products.php");

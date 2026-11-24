@@ -4,6 +4,7 @@ $pageTitle = 'Product Catalog Management';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // Handle Search and Filter
 $search = trim($_GET['search'] ?? '');
@@ -32,9 +33,9 @@ $query = "
     JOIN `Category` c ON p.category_id = c.category_id
     LEFT JOIN `Supplier` s ON p.supplier_id = s.supplier_id
     LEFT JOIN `Inventory` i ON p.product_id = i.product_id
-    WHERE 1=1
+    WHERE p.user_id = ?
 ";
-$params = [];
+$params = [$userId];
 
 if ($search !== '') {
     $query .= " AND (p.product_name LIKE ? OR p.product_id = ?)";
@@ -81,8 +82,10 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $products = $stmt->fetchAll();
 
-// Categories for filter dropdown
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
+// Categories for filter dropdown scoped to user
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
 ?>
 
 <div class="page-header">

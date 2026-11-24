@@ -4,11 +4,12 @@ $pageTitle = 'Detailed Sales Analysis Report';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 $startDate = trim($_GET['start_date'] ?? date('Y-06-01'));
 $endDate = trim($_GET['end_date'] ?? date('Y-m-d'));
 
-// Aggregate sales metrics
+// Aggregate sales metrics scoped to user
 $stmtAgg = $pdo->prepare("
     SELECT 
         COUNT(DISTINCT s.sale_id) AS total_bills,
@@ -17,9 +18,9 @@ $stmtAgg = $pdo->prepare("
         COALESCE(SUM(si.quantity * si.unit_cost_at_sale), 0) AS total_cogs
     FROM `Sales` s
     JOIN `Sale_Item` si ON s.sale_id = si.sale_id
-    WHERE s.sale_date BETWEEN ? AND ?
+    WHERE s.user_id = ? AND s.sale_date BETWEEN ? AND ?
 ");
-$stmtAgg->execute([$startDate, $endDate]);
+$stmtAgg->execute([$userId, $startDate, $endDate]);
 $summary = $stmtAgg->fetch();
 
 $totalRevenue = (float)$summary['total_revenue'];
@@ -27,7 +28,7 @@ $totalCOGS = (float)$summary['total_cogs'];
 $grossProfit = $totalRevenue - $totalCOGS;
 $profitMargin = $totalRevenue > 0 ? ($grossProfit / $totalRevenue) * 100 : 0;
 
-// Product Performance Ranking
+// Product Performance Ranking scoped to user
 $stmtRank = $pdo->prepare("
     SELECT 
         p.product_id,
@@ -42,11 +43,11 @@ $stmtRank = $pdo->prepare("
     JOIN `Sale_Item` si ON s.sale_id = si.sale_id
     JOIN `Product` p ON si.product_id = p.product_id
     JOIN `Category` c ON p.category_id = c.category_id
-    WHERE s.sale_date BETWEEN ? AND ?
+    WHERE s.user_id = ? AND s.sale_date BETWEEN ? AND ?
     GROUP BY p.product_id, p.product_name, c.category_name, p.unit
     ORDER BY revenue DESC
 ");
-$stmtRank->execute([$startDate, $endDate]);
+$stmtRank->execute([$userId, $startDate, $endDate]);
 $rankings = $stmtRank->fetchAll();
 ?>
 

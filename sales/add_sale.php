@@ -4,6 +4,7 @@ $pageTitle = 'Record Counter Sale (Stock-Out)';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 
 // Generate default bill number (e.g. BILL-YYYYMMDD-XXXX)
@@ -11,11 +12,13 @@ $todayStr = date('Ymd');
 $randomSuffix = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 4));
 $defaultBillNumber = "BILL-{$todayStr}-{$randomSuffix}";
 
-// Retrieve all grocery categories
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
+// Retrieve all grocery categories scoped to user
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
 
-// Retrieve all products with category info and physical stock
-$products = $pdo->query("
+// Retrieve all products with category info and physical stock scoped to user
+$stmtProd = $pdo->prepare("
     SELECT 
         p.product_id, 
         p.product_name, 
@@ -28,8 +31,11 @@ $products = $pdo->query("
     FROM `Product` p
     JOIN `Category` c ON p.category_id = c.category_id
     LEFT JOIN `Inventory` i ON p.product_id = i.product_id
+    WHERE p.user_id = ?
     ORDER BY c.category_name ASC, p.product_name ASC
-")->fetchAll();
+");
+$stmtProd->execute([$userId]);
+$products = $stmtProd->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sale_date = trim($_POST['sale_date'] ?? date('Y-m-d'));
@@ -63,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Please enter valid positive quantities for items sold.';
         } else {
             // Execute Algorithm 3: Stock-Out Transaction
-            $result = recordSaleTransaction($sale_date, $bill_number, $items);
+            $result = recordSaleTransaction($sale_date, $bill_number, $items, $userId);
             if ($result['success']) {
                 $_SESSION['flash_success'] = "Sales bill {$bill_number} generated successfully! Stock balances deducted and historical cost snapshot saved.";
                 header("Location: " . BASE_URL . "sales/sales.php?view=" . $result['sale_id']);

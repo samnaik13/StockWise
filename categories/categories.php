@@ -4,6 +4,7 @@ $pageTitle = 'Category Management';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 $editCategory = null;
 
@@ -19,12 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             if ($action === 'edit' && $category_id > 0) {
-                $stmt = $pdo->prepare("UPDATE `Category` SET `category_name` = ?, `description` = ? WHERE `category_id` = ?");
-                $stmt->execute([$category_name, $description, $category_id]);
+                $stmt = $pdo->prepare("UPDATE `Category` SET `category_name` = ?, `description` = ? WHERE `category_id` = ? AND `user_id` = ?");
+                $stmt->execute([$category_name, $description, $category_id, $userId]);
                 $_SESSION['flash_success'] = "Category '{$category_name}' updated successfully.";
             } else {
-                $stmt = $pdo->prepare("INSERT INTO `Category` (`category_name`, `description`) VALUES (?, ?)");
-                $stmt->execute([$category_name, $description]);
+                $stmt = $pdo->prepare("INSERT INTO `Category` (`category_name`, `description`, `user_id`) VALUES (?, ?, ?)");
+                $stmt->execute([$category_name, $description, $userId]);
                 $_SESSION['flash_success'] = "Category '{$category_name}' created successfully.";
             }
             header("Location: " . BASE_URL . "categories/categories.php");
@@ -43,15 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($_GET['delete'])) {
     $delId = (int)$_GET['delete'];
     try {
-        // Check if any products reference this category
-        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `Product` WHERE category_id = ?");
-        $stmtCheck->execute([$delId]);
+        // Check if any products reference this category for current user
+        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `Product` WHERE category_id = ? AND user_id = ?");
+        $stmtCheck->execute([$delId, $userId]);
         $prodCount = (int)$stmtCheck->fetchColumn();
 
         if ($prodCount > 0) {
             $_SESSION['flash_error'] = "Foreign Key Integrity: Cannot delete category #{$delId}. There are {$prodCount} product(s) classified under it.";
         } else {
-            $pdo->prepare("DELETE FROM `Category` WHERE category_id = ?")->execute([$delId]);
+            $stmtDel = $pdo->prepare("DELETE FROM `Category` WHERE category_id = ? AND user_id = ?");
+            $stmtDel->execute([$delId, $userId]);
             $_SESSION['flash_success'] = "Category deleted successfully.";
         }
     } catch (Exception $e) {
@@ -64,8 +66,8 @@ if (isset($_GET['delete'])) {
 // Handle Edit Mode Fetch
 if (isset($_GET['edit'])) {
     $editId = (int)$_GET['edit'];
-    $stmt = $pdo->prepare("SELECT * FROM `Category` WHERE category_id = ?");
-    $stmt->execute([$editId]);
+    $stmt = $pdo->prepare("SELECT * FROM `Category` WHERE category_id = ? AND user_id = ?");
+    $stmt->execute([$editId, $userId]);
     $editCategory = $stmt->fetch();
 }
 
@@ -80,10 +82,10 @@ $query = "
         c.description,
         COUNT(p.product_id) AS total_products
     FROM `Category` c
-    LEFT JOIN `Product` p ON c.category_id = p.category_id
-    WHERE 1=1
+    LEFT JOIN `Product` p ON c.category_id = p.category_id AND p.user_id = ?
+    WHERE c.user_id = ?
 ";
-$params = [];
+$params = [$userId, $userId];
 
 if ($search !== '') {
     $query .= " AND (c.category_name LIKE ? OR c.category_id = ?)";

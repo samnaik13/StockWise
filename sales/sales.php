@@ -4,6 +4,7 @@ $pageTitle = 'Sales Billing & Outflow Register';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // View single bill modal/panel
 $viewSaleId = (int)($_GET['view'] ?? 0);
@@ -11,8 +12,8 @@ $selectedSale = null;
 $saleItems = [];
 
 if ($viewSaleId > 0) {
-    $stmt = $pdo->prepare("SELECT * FROM `Sales` WHERE sale_id = ?");
-    $stmt->execute([$viewSaleId]);
+    $stmt = $pdo->prepare("SELECT * FROM `Sales` WHERE sale_id = ? AND user_id = ?");
+    $stmt->execute([$viewSaleId, $userId]);
     $selectedSale = $stmt->fetch();
 
     if ($selectedSale) {
@@ -27,8 +28,8 @@ if ($viewSaleId > 0) {
     }
 }
 
-// Fetch all sales bills with revenue, COGS, and gross profit
-$sales = $pdo->query("
+// Fetch all sales bills with revenue, COGS, and gross profit scoped to user
+$stmtAllSales = $pdo->prepare("
     SELECT 
         s.sale_id,
         s.bill_number,
@@ -39,9 +40,12 @@ $sales = $pdo->query("
         ROUND(SUM(si.quantity * si.unit_selling_price) - SUM(si.quantity * si.unit_cost_at_sale), 2) AS gross_profit
     FROM `Sales` s
     JOIN `Sale_Item` si ON s.sale_id = si.sale_id
+    WHERE s.user_id = ?
     GROUP BY s.sale_id, s.bill_number, s.sale_date
     ORDER BY s.sale_date DESC, s.sale_id DESC
-")->fetchAll();
+");
+$stmtAllSales->execute([$userId]);
+$sales = $stmtAllSales->fetchAll();
 ?>
 
 <div class="page-header">

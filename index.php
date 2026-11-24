@@ -4,43 +4,70 @@ $pageTitle = 'StockWise Dashboard';
 require_once __DIR__ . '/includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
-// Fetch Core Dashboard Metrics
-$totalProducts = (int)$pdo->query("SELECT COUNT(*) FROM `Product`")->fetchColumn();
-$totalCategories = (int)$pdo->query("SELECT COUNT(*) FROM `Category`")->fetchColumn();
-$totalSuppliers = (int)$pdo->query("SELECT COUNT(*) FROM `Supplier`")->fetchColumn();
-$totalInventoryQty = (float)$pdo->query("SELECT COALESCE(SUM(quantity_available), 0) FROM `Inventory`")->fetchColumn();
-$totalInventoryVal = (float)$pdo->query("SELECT COALESCE(SUM(quantity_available * average_cost), 0) FROM `Inventory`")->fetchColumn();
+// Fetch Core Dashboard Metrics scoped to logged-in user
+$stmtProd = $pdo->prepare("SELECT COUNT(*) FROM `Product` WHERE user_id = ?");
+$stmtProd->execute([$userId]);
+$totalProducts = (int)$stmtProd->fetchColumn();
 
-// View Metrics
-$lowStockCount = (int)$pdo->query("SELECT COUNT(*) FROM `Low_Stock_Products`")->fetchColumn();
-$deadStockCount = (int)$pdo->query("SELECT COUNT(*) FROM `Dead_Stock_Products`")->fetchColumn();
+$stmtCat = $pdo->prepare("SELECT COUNT(*) FROM `Category` WHERE user_id = ?");
+$stmtCat->execute([$userId]);
+$totalCategories = (int)$stmtCat->fetchColumn();
 
-// Current Month Metrics (October 2026 or current calendar month)
+$stmtSupp = $pdo->prepare("SELECT COUNT(*) FROM `Supplier` WHERE user_id = ?");
+$stmtSupp->execute([$userId]);
+$totalSuppliers = (int)$stmtSupp->fetchColumn();
+
+$stmtInvQty = $pdo->prepare("SELECT COALESCE(SUM(quantity_available), 0) FROM `Inventory` WHERE user_id = ?");
+$stmtInvQty->execute([$userId]);
+$totalInventoryQty = (float)$stmtInvQty->fetchColumn();
+
+$stmtInvVal = $pdo->prepare("SELECT COALESCE(SUM(quantity_available * average_cost), 0) FROM `Inventory` WHERE user_id = ?");
+$stmtInvVal->execute([$userId]);
+$totalInventoryVal = (float)$stmtInvVal->fetchColumn();
+
+// View Metrics scoped to user
+$stmtLow = $pdo->prepare("SELECT COUNT(*) FROM `Low_Stock_Products` lsp JOIN `Product` p ON lsp.product_id = p.product_id WHERE p.user_id = ?");
+$stmtLow->execute([$userId]);
+$lowStockCount = (int)$stmtLow->fetchColumn();
+
+$stmtDead = $pdo->prepare("SELECT COUNT(*) FROM `Dead_Stock_Products` dsp JOIN `Product` p ON dsp.product_id = p.product_id WHERE p.user_id = ?");
+$stmtDead->execute([$userId]);
+$deadStockCount = (int)$stmtDead->fetchColumn();
+
+// Current Month Metrics (October 2026 or current calendar month) scoped to user
 $currentMonth = date('Y-m');
-$stmtSales = $pdo->prepare("SELECT COALESCE(SUM(si.quantity * si.unit_selling_price), 0) FROM `Sales` s JOIN `Sale_Item` si ON s.sale_id = si.sale_id WHERE DATE_FORMAT(s.sale_date, '%Y-%m') = ?");
-$stmtSales->execute([$currentMonth]);
+$stmtSales = $pdo->prepare("SELECT COALESCE(SUM(si.quantity * si.unit_selling_price), 0) FROM `Sales` s JOIN `Sale_Item` si ON s.sale_id = si.sale_id WHERE s.user_id = ? AND DATE_FORMAT(s.sale_date, '%Y-%m') = ?");
+$stmtSales->execute([$userId, $currentMonth]);
 $monthlySalesRevenue = (float)$stmtSales->fetchColumn();
 
-$stmtPurchases = $pdo->prepare("SELECT COALESCE(SUM(pi.quantity * pi.unit_cost), 0) FROM `Purchase` p JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id WHERE DATE_FORMAT(p.purchase_date, '%Y-%m') = ?");
-$stmtPurchases->execute([$currentMonth]);
+$stmtPurchases = $pdo->prepare("SELECT COALESCE(SUM(pi.quantity * pi.unit_cost), 0) FROM `Purchase` p JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id WHERE p.user_id = ? AND DATE_FORMAT(p.purchase_date, '%Y-%m') = ?");
+$stmtPurchases->execute([$userId, $currentMonth]);
 $monthlyPurchaseExpenditure = (float)$stmtPurchases->fetchColumn();
 
-// Recent Stock Movements (Audit Trail Preview)
-$recentMovements = $pdo->query("
+// Recent Stock Movements (Audit Trail Preview) scoped to user
+$stmtMv = $pdo->prepare("
     SELECT sm.movement_id, sm.movement_date, sm.movement_type, sm.quantity, sm.remarks, p.product_name, p.unit
     FROM `Stock_Movement` sm
     JOIN `Product` p ON sm.product_id = p.product_id
+    WHERE sm.user_id = ?
     ORDER BY sm.movement_id DESC
     LIMIT 6
-")->fetchAll();
+");
+$stmtMv->execute([$userId]);
+$recentMovements = $stmtMv->fetchAll();
 
-// Low Stock Preview
-$lowStockItems = $pdo->query("
-    SELECT product_id, product_name, category_name, quantity_available, reorder_level, unit, stock_condition
-    FROM `Low_Stock_Products`
+// Low Stock Preview scoped to user
+$stmtLowItems = $pdo->prepare("
+    SELECT lsp.product_id, lsp.product_name, lsp.category_name, lsp.quantity_available, lsp.reorder_level, lsp.unit, lsp.stock_condition
+    FROM `Low_Stock_Products` lsp
+    JOIN `Product` p ON lsp.product_id = p.product_id
+    WHERE p.user_id = ?
     LIMIT 5
-")->fetchAll();
+");
+$stmtLowItems->execute([$userId]);
+$lowStockItems = $stmtLowItems->fetchAll();
 ?>
 
 <div class="page-header">

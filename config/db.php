@@ -83,21 +83,24 @@ function sanitize($data) {
  * Atomically records purchase invoice, line items, updates inventory quantity,
  * recalculates Weighted Average Cost, and writes to Stock_Movement.
  */
-function recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number, $items) {
+function recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number, $items, $user_id = null) {
+    if ($user_id === null) {
+        $user_id = (int)($_SESSION['user_id'] ?? 1);
+    }
     $pdo = getDBConnection();
     try {
         $pdo->beginTransaction();
 
-        // 1. Insert Purchase Header
-        $stmt = $pdo->prepare("INSERT INTO `Purchase` (`supplier_id`, `purchase_date`, `invoice_number`) VALUES (?, ?, ?)");
-        $stmt->execute([$supplier_id, $purchase_date, $invoice_number]);
+        // 1. Insert Purchase Header with user_id
+        $stmt = $pdo->prepare("INSERT INTO `Purchase` (`supplier_id`, `purchase_date`, `invoice_number`, `user_id`) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$supplier_id, $purchase_date, $invoice_number, $user_id]);
         $purchase_id = $pdo->lastInsertId();
 
         // Prepared statements for details and updates
         $stmtItem = $pdo->prepare("INSERT INTO `Purchase_Item` (`purchase_id`, `product_id`, `quantity`, `unit_cost`, `expiry_date`) VALUES (?, ?, ?, ?, ?)");
-        $stmtMovement = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`) VALUES (?, ?, 'PURCHASE', ?, ?)");
-        $stmtGetInv = $pdo->prepare("SELECT `quantity_available`, `average_cost` FROM `Inventory` WHERE `product_id` = ? FOR UPDATE");
-        $stmtUpdateInv = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `average_cost` = ?, `last_updated` = NOW() WHERE `product_id` = ?");
+        $stmtMovement = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`, `user_id`) VALUES (?, ?, 'PURCHASE', ?, ?, ?)");
+        $stmtGetInv = $pdo->prepare("SELECT `quantity_available`, `average_cost` FROM `Inventory` WHERE `product_id` = ? AND `user_id` = ? FOR UPDATE");
+        $stmtUpdateInv = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `average_cost` = ?, `last_updated` = NOW() WHERE `product_id` = ? AND `user_id` = ?");
 
         foreach ($items as $item) {
             $product_id = (int)$item['product_id'];
@@ -116,7 +119,7 @@ function recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number
             $stmtItem->execute([$purchase_id, $product_id, $quantity, $unit_cost, $expiry_date]);
 
             // Fetch current inventory for update
-            $stmtGetInv->execute([$product_id]);
+            $stmtGetInv->execute([$product_id, $user_id]);
             $currentInv = $stmtGetInv->fetch();
 
             $current_qty = $currentInv ? (float)$currentInv['quantity_available'] : 0.0;
@@ -132,11 +135,11 @@ function recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number
             }
 
             // Update inventory
-            $stmtUpdateInv->execute([$new_qty, round($new_avg_cost, 2), $product_id]);
+            $stmtUpdateInv->execute([$new_qty, round($new_avg_cost, 2), $product_id, $user_id]);
 
-            // Insert Stock_Movement
+            // Insert Stock_Movement with user_id
             $remarks = "Purchase Invoice: " . $invoice_number;
-            $stmtMovement->execute([$product_id, $purchase_date, $quantity, $remarks]);
+            $stmtMovement->execute([$product_id, $purchase_date, $quantity, $remarks, $user_id]);
         }
 
         $pdo->commit();
@@ -154,23 +157,26 @@ function recordPurchaseTransaction($supplier_id, $purchase_date, $invoice_number
  * Validates stock availability, freezes selling price and cost snapshot,
  * deducts inventory, and records Stock_Movement. Rolls back on insufficient stock.
  */
-function recordSaleTransaction($sale_date, $bill_number, $items) {
+function recordSaleTransaction($sale_date, $bill_number, $items, $user_id = null) {
+    if ($user_id === null) {
+        $user_id = (int)($_SESSION['user_id'] ?? 1);
+    }
     $pdo = getDBConnection();
     try {
         $pdo->beginTransaction();
 
-        // 1. Insert Sales Header
-        $stmt = $pdo->prepare("INSERT INTO `Sales` (`sale_date`, `bill_number`) VALUES (?, ?)");
-        $stmt->execute([$sale_date, $bill_number]);
+        // 1. Insert Sales Header with user_id
+        $stmt = $pdo->prepare("INSERT INTO `Sales` (`sale_date`, `bill_number`, `user_id`) VALUES (?, ?, ?)");
+        $stmt->execute([$sale_date, $bill_number, $user_id]);
         $sale_id = $pdo->lastInsertId();
 
         $stmtGetInv = $pdo->prepare("SELECT i.quantity_available, i.average_cost, p.product_name, p.unit, p.selling_price 
                                       FROM `Inventory` i 
                                       JOIN `Product` p ON i.product_id = p.product_id 
-                                      WHERE i.product_id = ? FOR UPDATE");
+                                      WHERE i.product_id = ? AND i.user_id = ? FOR UPDATE");
         $stmtItem = $pdo->prepare("INSERT INTO `Sale_Item` (`sale_id`, `product_id`, `quantity`, `unit_selling_price`, `unit_cost_at_sale`) VALUES (?, ?, ?, ?, ?)");
-        $stmtUpdateInv = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `last_updated` = NOW() WHERE `product_id` = ?");
-        $stmtMovement = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`) VALUES (?, ?, 'SALE', ?, ?)");
+        $stmtUpdateInv = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `last_updated` = NOW() WHERE `product_id` = ? AND `user_id` = ?");
+        $stmtMovement = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`, `user_id`) VALUES (?, ?, 'SALE', ?, ?, ?)");
 
         foreach ($items as $item) {
             $product_id = (int)$item['product_id'];
@@ -180,7 +186,7 @@ function recordSaleTransaction($sale_date, $bill_number, $items) {
                 throw new Exception("Sale quantity must be strictly positive for product ID: $product_id");
             }
 
-            $stmtGetInv->execute([$product_id]);
+            $stmtGetInv->execute([$product_id, $user_id]);
             $prod = $stmtGetInv->fetch();
 
             if (!$prod) {
@@ -202,11 +208,11 @@ function recordSaleTransaction($sale_date, $bill_number, $items) {
 
             // Deduct stock from Inventory
             $new_available = $available - $quantity;
-            $stmtUpdateInv->execute([$new_available, $product_id]);
+            $stmtUpdateInv->execute([$new_available, $product_id, $user_id]);
 
-            // Insert Stock Movement
+            // Insert Stock Movement with user_id
             $remarks = "Customer Bill: " . $bill_number;
-            $stmtMovement->execute([$product_id, $sale_date, $quantity, $remarks]);
+            $stmtMovement->execute([$product_id, $sale_date, $quantity, $remarks, $user_id]);
         }
 
         $pdo->commit();
@@ -223,7 +229,10 @@ function recordSaleTransaction($sale_date, $bill_number, $items) {
  * STOCK ADJUSTMENT TRANSACTION (Internal Use, Damage, Returns)
  * Atomically updates inventory and logs Stock_Movement.
  */
-function recordStockAdjustment($product_id, $movement_date, $movement_type, $quantity, $remarks) {
+function recordStockAdjustment($product_id, $movement_date, $movement_type, $quantity, $remarks, $user_id = null) {
+    if ($user_id === null) {
+        $user_id = (int)($_SESSION['user_id'] ?? 1);
+    }
     $pdo = getDBConnection();
     $validTypes = ['INTERNAL_USE', 'DAMAGE', 'CUSTOMER_RETURN', 'SUPPLIER_RETURN'];
     if (!in_array($movement_type, $validTypes)) {
@@ -238,8 +247,8 @@ function recordStockAdjustment($product_id, $movement_date, $movement_type, $qua
     try {
         $pdo->beginTransaction();
 
-        $stmt = $pdo->prepare("SELECT i.quantity_available, p.product_name, p.unit FROM `Inventory` i JOIN `Product` p ON i.product_id = p.product_id WHERE i.product_id = ? FOR UPDATE");
-        $stmt->execute([$product_id]);
+        $stmt = $pdo->prepare("SELECT i.quantity_available, p.product_name, p.unit FROM `Inventory` i JOIN `Product` p ON i.product_id = p.product_id WHERE i.product_id = ? AND i.user_id = ? FOR UPDATE");
+        $stmt->execute([$product_id, $user_id]);
         $inv = $stmt->fetch();
         if (!$inv) {
             throw new Exception("Product ID $product_id not found.");
@@ -258,12 +267,12 @@ function recordStockAdjustment($product_id, $movement_date, $movement_type, $qua
         }
 
         // Update Inventory
-        $stmtUpdate = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `last_updated` = NOW() WHERE `product_id` = ?");
-        $stmtUpdate->execute([$new_stock, $product_id]);
+        $stmtUpdate = $pdo->prepare("UPDATE `Inventory` SET `quantity_available` = ?, `last_updated` = NOW() WHERE `product_id` = ? AND `user_id` = ?");
+        $stmtUpdate->execute([$new_stock, $product_id, $user_id]);
 
-        // Insert Stock_Movement
-        $stmtMove = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`) VALUES (?, ?, ?, ?, ?)");
-        $stmtMove->execute([$product_id, $movement_date, $movement_type, $quantity, $remarks]);
+        // Insert Stock_Movement with user_id
+        $stmtMove = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`, `user_id`) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmtMove->execute([$product_id, $movement_date, $movement_type, $quantity, $remarks, $user_id]);
 
         $pdo->commit();
         return ['success' => true];

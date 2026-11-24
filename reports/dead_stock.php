@@ -4,6 +4,7 @@ $pageTitle = 'Dead Stock Detection';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // Allow configurable threshold (default 90 days as required by Algorithm 7)
 $thresholdDays = (int)($_GET['threshold'] ?? 90);
@@ -46,7 +47,8 @@ $stmt = $pdo->prepare("
         WHERE movement_type IN ('OPENING', 'PURCHASE')
         GROUP BY product_id
     ) stock_info ON p.product_id = stock_info.product_id
-    WHERE i.quantity_available > 0
+    WHERE p.user_id = ?
+      AND i.quantity_available > 0
       AND (
           (sales_info.last_sale_date IS NOT NULL AND DATEDIFF(CURRENT_DATE(), sales_info.last_sale_date) >= ?)
           OR 
@@ -54,7 +56,7 @@ $stmt = $pdo->prepare("
       )
     ORDER BY days_without_sale DESC
 ");
-$stmt->execute([$thresholdDays, $thresholdDays]);
+$stmt->execute([$userId, $thresholdDays, $thresholdDays]);
 $deadStockItems = $stmt->fetchAll();
 
 $totalTiedUpCapital = 0;

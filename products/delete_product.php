@@ -1,8 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
-session_start();
+require_once __DIR__ . '/../config/auth.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $product_id = (int)($_GET['id'] ?? 0);
 
 if ($product_id <= 0) {
@@ -11,9 +15,9 @@ if ($product_id <= 0) {
 }
 
 try {
-    // 1. Check if product exists
-    $stmt = $pdo->prepare("SELECT product_name FROM `Product` WHERE product_id = ?");
-    $stmt->execute([$product_id]);
+    // 1. Check if product exists for current user
+    $stmt = $pdo->prepare("SELECT product_name FROM `Product` WHERE product_id = ? AND user_id = ?");
+    $stmt->execute([$product_id, $userId]);
     $prod = $stmt->fetch();
 
     if (!$prod) {
@@ -25,13 +29,13 @@ try {
     $product_name = $prod['product_name'];
 
     // 2. Check for historical purchase items
-    $stmtPur = $pdo->prepare("SELECT COUNT(*) FROM `Purchase_Item` WHERE product_id = ?");
-    $stmtPur->execute([$product_id]);
+    $stmtPur = $pdo->prepare("SELECT COUNT(*) FROM `Purchase_Item` pi JOIN `Purchase` p ON pi.purchase_id = p.purchase_id WHERE pi.product_id = ? AND p.user_id = ?");
+    $stmtPur->execute([$product_id, $userId]);
     $purchaseCount = (int)$stmtPur->fetchColumn();
 
     // 3. Check for historical sale items
-    $stmtSale = $pdo->prepare("SELECT COUNT(*) FROM `Sale_Item` WHERE product_id = ?");
-    $stmtSale->execute([$product_id]);
+    $stmtSale = $pdo->prepare("SELECT COUNT(*) FROM `Sale_Item` si JOIN `Sales` s ON si.sale_id = s.sale_id WHERE si.product_id = ? AND s.user_id = ?");
+    $stmtSale->execute([$product_id, $userId]);
     $saleCount = (int)$stmtSale->fetchColumn();
 
     if ($purchaseCount > 0 || $saleCount > 0) {
@@ -42,9 +46,9 @@ try {
 
     // 4. If no transactional history, delete inventory, stock movements, and product
     $pdo->beginTransaction();
-    $pdo->prepare("DELETE FROM `Stock_Movement` WHERE product_id = ?")->execute([$product_id]);
-    $pdo->prepare("DELETE FROM `Inventory` WHERE product_id = ?")->execute([$product_id]);
-    $pdo->prepare("DELETE FROM `Product` WHERE product_id = ?")->execute([$product_id]);
+    $pdo->prepare("DELETE FROM `Stock_Movement` WHERE product_id = ? AND user_id = ?")->execute([$product_id, $userId]);
+    $pdo->prepare("DELETE FROM `Inventory` WHERE product_id = ? AND user_id = ?")->execute([$product_id, $userId]);
+    $pdo->prepare("DELETE FROM `Product` WHERE product_id = ? AND user_id = ?")->execute([$product_id, $userId]);
     $pdo->commit();
 
     $_SESSION['flash_success'] = "Product '{$product_name}' was deleted successfully.";

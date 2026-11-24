@@ -4,6 +4,7 @@ $pageTitle = 'Stock Movement Audit History';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // Filters
 $productId = (int)($_GET['product_id'] ?? 0);
@@ -25,9 +26,9 @@ $query = "
     FROM `Stock_Movement` sm
     JOIN `Product` p ON sm.product_id = p.product_id
     JOIN `Category` c ON p.category_id = c.category_id
-    WHERE 1=1
+    WHERE sm.user_id = ?
 ";
-$params = [];
+$params = [$userId];
 
 if ($productId > 0) {
     $query .= " AND sm.product_id = ?";
@@ -54,8 +55,10 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $movements = $stmt->fetchAll();
 
-// Product list for filter dropdown
-$products = $pdo->query("SELECT product_id, product_name FROM `Product` ORDER BY product_name ASC")->fetchAll();
+// Product list for filter dropdown scoped to user
+$stmtProd = $pdo->prepare("SELECT product_id, product_name FROM `Product` WHERE user_id = ? ORDER BY product_name ASC");
+$stmtProd->execute([$userId]);
+$products = $stmtProd->fetchAll();
 ?>
 
 <div class="page-header">

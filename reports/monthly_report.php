@@ -4,6 +4,7 @@ $pageTitle = 'Monthly Inventory & Financial Report';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // Select Month & Year (Default to current or October 2026)
 $selectedYear = (int)($_GET['year'] ?? 2026);
@@ -19,7 +20,7 @@ $nextMonthStart = date('Y-m-01', $nextMonthTimestamp);
 
 // ==============================================================================
 // 1. SECTION A: STOCK SUMMARY (ALGORITHM 1 & 5)
-// Historical opening and closing calculated using stock movements!
+// Historical opening and closing calculated using stock movements scoped to user!
 // ==============================================================================
 
 // Opening Stock prior to monthStart
@@ -33,9 +34,9 @@ $stmtOpen = $pdo->prepare("
             END
         ), 0) AS opening_stock
     FROM `Stock_Movement`
-    WHERE movement_date < ?
+    WHERE user_id = ? AND movement_date < ?
 ");
-$stmtOpen->execute([$monthStart]);
+$stmtOpen->execute([$userId, $monthStart]);
 $openingStockQty = (float)$stmtOpen->fetchColumn();
 
 // Stock Movements within the month
@@ -44,10 +45,10 @@ $stmtMonthMove = $pdo->prepare("
         movement_type,
         COALESCE(SUM(quantity), 0) AS total_qty
     FROM `Stock_Movement`
-    WHERE movement_date >= ? AND movement_date < ?
+    WHERE user_id = ? AND movement_date >= ? AND movement_date < ?
     GROUP BY movement_type
 ");
-$stmtMonthMove->execute([$monthStart, $nextMonthStart]);
+$stmtMonthMove->execute([$userId, $monthStart, $nextMonthStart]);
 $monthMoves = $stmtMonthMove->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $purchasedQty    = (float)($monthMoves['PURCHASE'] ?? 0);
@@ -70,9 +71,9 @@ $stmtPurSummary = $pdo->prepare("
         COALESCE(SUM(pi.quantity * pi.unit_cost), 0) AS total_expenditure
     FROM `Purchase` p
     JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
-    WHERE p.purchase_date >= ? AND p.purchase_date < ?
+    WHERE p.user_id = ? AND p.purchase_date >= ? AND p.purchase_date < ?
 ");
-$stmtPurSummary->execute([$monthStart, $nextMonthStart]);
+$stmtPurSummary->execute([$userId, $monthStart, $nextMonthStart]);
 $purSummary = $stmtPurSummary->fetch();
 
 $totalPurchaseInvoices = (int)$purSummary['total_invoices'];
@@ -88,11 +89,11 @@ $stmtSuppPur = $pdo->prepare("
     FROM `Purchase` p
     JOIN `Supplier` s ON p.supplier_id = s.supplier_id
     JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
-    WHERE p.purchase_date >= ? AND p.purchase_date < ?
+    WHERE p.user_id = ? AND p.purchase_date >= ? AND p.purchase_date < ?
     GROUP BY s.supplier_id, s.supplier_name
     ORDER BY spend DESC
 ");
-$stmtSuppPur->execute([$monthStart, $nextMonthStart]);
+$stmtSuppPur->execute([$userId, $monthStart, $nextMonthStart]);
 $supplierPurchases = $stmtSuppPur->fetchAll();
 
 // Product-wise purchases
@@ -105,11 +106,11 @@ $stmtProdPur = $pdo->prepare("
     FROM `Purchase` p
     JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
     JOIN `Product` pr ON pi.product_id = pr.product_id
-    WHERE p.purchase_date >= ? AND p.purchase_date < ?
+    WHERE p.user_id = ? AND p.purchase_date >= ? AND p.purchase_date < ?
     GROUP BY pr.product_id, pr.product_name, pr.unit
     ORDER BY total_cost DESC
 ");
-$stmtProdPur->execute([$monthStart, $nextMonthStart]);
+$stmtProdPur->execute([$userId, $monthStart, $nextMonthStart]);
 $productPurchases = $stmtProdPur->fetchAll();
 
 // ==============================================================================
@@ -123,9 +124,9 @@ $stmtSaleSummary = $pdo->prepare("
         COALESCE(SUM(si.quantity * si.unit_cost_at_sale), 0) AS total_cogs
     FROM `Sales` s
     JOIN `Sale_Item` si ON s.sale_id = si.sale_id
-    WHERE s.sale_date >= ? AND s.sale_date < ?
+    WHERE s.user_id = ? AND s.sale_date >= ? AND s.sale_date < ?
 ");
-$stmtSaleSummary->execute([$monthStart, $nextMonthStart]);
+$stmtSaleSummary->execute([$userId, $monthStart, $nextMonthStart]);
 $saleSummary = $stmtSaleSummary->fetch();
 
 $totalSalesBills = (int)$saleSummary['total_bills'];
@@ -147,15 +148,29 @@ $stmtProdSales = $pdo->prepare("
     FROM `Sales` s
     JOIN `Sale_Item` si ON s.sale_id = si.sale_id
     JOIN `Product` pr ON si.product_id = pr.product_id
-    WHERE s.sale_date >= ? AND s.sale_date < ?
+    WHERE s.user_id = ? AND s.sale_date >= ? AND s.sale_date < ?
     GROUP BY pr.product_id, pr.product_name, pr.unit
     ORDER BY revenue DESC
 ");
-$stmtProdSales->execute([$monthStart, $nextMonthStart]);
+$stmtProdSales->execute([$userId, $monthStart, $nextMonthStart]);
 $productSales = $stmtProdSales->fetchAll();
 
-// Current stock valuation as reference
-$currentStockValuation = (float)$pdo->query("SELECT COALESCE(SUM(quantity_available * average_cost), 0) FROM `Inventory`")->fetchColumn();
+// Current stock valuation as reference scoped to user
+$stmtVal = $pdo->prepare("SELECT COALESCE(SUM(quantity_available * average_cost), 0) FROM `Inventory` WHERE user_id = ?");
+$stmtVal->execute([$userId]);
+$currentStockValuation = (float)$stmtVal->fetchColumn();
+
+// ==============================================================================
+// 4. PIE CHART DATA PREPARATION (COGS vs GROSS PROFIT = GROSS REVENUE)
+// ==============================================================================
+$cogsPercent = 0.0;
+$profitPercent = 0.0;
+$hasSalesData = ($totalSalesRevenue > 0);
+
+if ($hasSalesData) {
+    $cogsPercent = round(($totalCOGS / $totalSalesRevenue) * 100, 1);
+    $profitPercent = round(($grossProfit / $totalSalesRevenue) * 100, 1);
+}
 ?>
 
 <div class="page-header">
@@ -427,6 +442,119 @@ $currentStockValuation = (float)$pdo->query("SELECT COALESCE(SUM(quantity_availa
                 </tr>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- SECTION E: FINANCIAL REVENUE BREAKDOWN & PIE CHART (COGS vs GROSS PROFIT)     -->
+<!-- ============================================================================== -->
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h3>Section E: Financial Revenue Distribution (COGS vs Gross Profit)</h3>
+    </div>
+    <div class="card-body">
+        <?php if (!$hasSalesData): ?>
+            <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📊</div>
+                <h4 style="color: var(--text-main); margin-bottom: 0.25rem;">No Sales Data for <?= date('F Y', strtotime($monthStart)) ?></h4>
+                <p>Gross Sales Revenue, COGS, and Gross Profit are currently ₹0.00. The dynamic pie chart will generate once counter sales are recorded for this month.</p>
+            </div>
+        <?php else: ?>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 2rem;">
+                <!-- Pie Chart Visual (SVG Vector Graphic) -->
+                <div style="width: 280px; height: 280px; position: relative;">
+                    <?php
+                    // Compute SVG pie chart slices
+                    $radius = 110;
+                    $cx = 140;
+                    $cy = 140;
+                    
+                    if ($grossProfit <= 0) {
+                        // 100% COGS
+                        echo '<svg viewBox="0 0 280 280" width="100%" height="100%">';
+                        echo "<circle cx='{$cx}' cy='{$cy}' r='{$radius}' fill='#2c7da0' stroke='#ffffff' stroke-width='3'/>";
+                        echo '<text x="140" y="145" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">COGS 100%</text>';
+                        echo '</svg>';
+                    } elseif ($totalCOGS <= 0) {
+                        // 100% Gross Profit
+                        echo '<svg viewBox="0 0 280 280" width="100%" height="100%">';
+                        echo "<circle cx='{$cx}' cy='{$cy}' r='{$radius}' fill='#2d6a4f' stroke='#ffffff' stroke-width='3'/>";
+                        echo '<text x="140" y="145" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">Profit 100%</text>';
+                        echo '</svg>';
+                    } else {
+                        // Two slices: COGS and Gross Profit
+                        $cogsAngle = ($totalCOGS / $totalSalesRevenue) * 360;
+                        $rad = ($cogsAngle - 90) * M_PI / 180;
+                        $x = $cx + $radius * cos($rad);
+                        $y = $cy + $radius * sin($rad);
+                        $largeArc = $cogsAngle > 180 ? 1 : 0;
+                        $smallArc = $largeArc ? 0 : 1;
+
+                        echo '<svg viewBox="0 0 280 280" width="100%" height="100%">';
+                        // COGS Slice (starting from top (140, 30))
+                        echo "<path d='M {$cx} {$cy} L {$cx} " . ($cy - $radius) . " A {$radius} {$radius} 0 {$largeArc} 1 {$x} {$y} Z' fill='#2c7da0' stroke='#ffffff' stroke-width='2.5'><title>Cost of Goods Sold (COGS): {$cogsPercent}%</title></path>";
+                        // Gross Profit Slice
+                        echo "<path d='M {$cx} {$cy} L {$x} {$y} A {$radius} {$radius} 0 {$smallArc} 1 {$cx} " . ($cy - $radius) . " Z' fill='#2d6a4f' stroke='#ffffff' stroke-width='2.5'><title>Gross Profit: {$profitPercent}%</title></path>";
+                        echo '</svg>';
+                    }
+                    ?>
+                </div>
+
+                <!-- Legend & Financial Metrics -->
+                <div style="flex: 1; min-width: 260px; max-width: 480px;">
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="margin-bottom: 0.4rem; color: var(--primary);">Gross Sales Revenue Composition</h4>
+                        <p style="font-size: 0.88rem; color: var(--text-muted);">
+                            Gross Sales Revenue (<strong><?= formatCurrency($totalSalesRevenue) ?></strong>) is the sum of Cost of Goods Sold and net Gross Profit realized from retail counter sales.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #e1f5fe; border-left: 5px solid #2c7da0; border-radius: 4px;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="display: inline-block; width: 14px; height: 14px; background-color: #2c7da0; border-radius: 3px;"></span>
+                                <div>
+                                    <strong style="color: #0277bd;">Cost of Goods Sold (COGS)</strong>
+                                    <div style="font-size: 0.8rem; color: #555;">Wholesale inventory product cost</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #0277bd; font-size: 1.05rem;"><?= formatCurrency($totalCOGS) ?></div>
+                                <span class="badge badge-info"><?= number_format($cogsPercent, 1) ?>%</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--success-bg); border-left: 5px solid #2d6a4f; border-radius: 4px;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="display: inline-block; width: 14px; height: 14px; background-color: #2d6a4f; border-radius: 3px;"></span>
+                                <div>
+                                    <strong style="color: var(--success);">Gross Profit</strong>
+                                    <div style="font-size: 0.8rem; color: #555;">Operating gross margin</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: var(--success); font-size: 1.05rem;"><?= formatCurrency($grossProfit) ?></div>
+                                <span class="badge badge-success"><?= number_format($profitPercent, 1) ?>%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- PDF DOWNLOAD ACTION BUTTON (AT THE VERY BOTTOM)                                 -->
+<!-- ============================================================================== -->
+<div style="text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+    <a href="<?= BASE_URL ?>reports/download_report_pdf.php?month=<?= $selectedMonth ?>&year=<?= $selectedYear ?>" 
+       class="btn btn-primary" 
+       style="padding: 0.9rem 2.5rem; font-size: 1.1rem; font-weight: 600; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(27,77,62,0.25); display: inline-flex; align-items: center; gap: 0.6rem;">
+       <span>📥</span> Download Report (PDF)
+    </a>
+    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+        Downloads complete report with financial statement, stock ledger, and pie chart for <?= date('F Y', strtotime($monthStart)) ?>
     </div>
 </div>
 

@@ -4,9 +4,12 @@ $pageTitle = 'Low Stock Reorder Alerts';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
-// Fetch low stock items using Database View 1: Low_Stock_Products
-$items = $pdo->query("SELECT * FROM `Low_Stock_Products`")->fetchAll();
+// Fetch low stock items using Database View 1: Low_Stock_Products scoped to user
+$stmt = $pdo->prepare("SELECT lsp.* FROM `Low_Stock_Products` lsp JOIN `Product` p ON lsp.product_id = p.product_id WHERE p.user_id = ?");
+$stmt->execute([$userId]);
+$items = $stmt->fetchAll();
 ?>
 
 <div class="page-header">

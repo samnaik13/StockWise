@@ -4,6 +4,7 @@ $pageTitle = 'Wholesale Purchase Report';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 $startDate = trim($_GET['start_date'] ?? date('Y-06-01'));
 $endDate = trim($_GET['end_date'] ?? date('Y-m-d'));
@@ -21,9 +22,9 @@ $query = "
     FROM `Purchase` p
     JOIN `Supplier` s ON p.supplier_id = s.supplier_id
     JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
-    WHERE p.purchase_date BETWEEN ? AND ?
+    WHERE p.user_id = ? AND p.purchase_date BETWEEN ? AND ?
 ";
-$params = [$startDate, $endDate];
+$params = [$userId, $startDate, $endDate];
 
 if ($supplierId > 0) {
     $query .= " AND p.supplier_id = ?";
@@ -43,7 +44,9 @@ foreach ($purchases as $p) {
     $totalUnits += (float)$p['total_units'];
 }
 
-$suppliers = $pdo->query("SELECT supplier_id, supplier_name FROM `Supplier` ORDER BY supplier_name ASC")->fetchAll();
+$stmtSupp = $pdo->prepare("SELECT supplier_id, supplier_name FROM `Supplier` WHERE user_id = ? ORDER BY supplier_name ASC");
+$stmtSupp->execute([$userId]);
+$suppliers = $stmtSupp->fetchAll();
 ?>
 
 <div class="page-header">

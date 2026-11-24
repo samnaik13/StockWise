@@ -4,6 +4,7 @@ $pageTitle = 'Stock-In Purchase Orders';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 
 // View single purchase order modal/panel
 $viewPurchaseId = (int)($_GET['view'] ?? 0);
@@ -15,9 +16,9 @@ if ($viewPurchaseId > 0) {
         SELECT p.*, s.supplier_name, s.phone, s.email 
         FROM `Purchase` p
         JOIN `Supplier` s ON p.supplier_id = s.supplier_id
-        WHERE p.purchase_id = ?
+        WHERE p.purchase_id = ? AND p.user_id = ?
     ");
-    $stmt->execute([$viewPurchaseId]);
+    $stmt->execute([$viewPurchaseId, $userId]);
     $selectedPurchase = $stmt->fetch();
 
     if ($selectedPurchase) {
@@ -32,8 +33,8 @@ if ($viewPurchaseId > 0) {
     }
 }
 
-// Fetch all purchases
-$purchases = $pdo->query("
+// Fetch all purchases scoped to user
+$stmtAllPur = $pdo->prepare("
     SELECT 
         p.purchase_id,
         p.invoice_number,
@@ -44,9 +45,12 @@ $purchases = $pdo->query("
     FROM `Purchase` p
     JOIN `Supplier` s ON p.supplier_id = s.supplier_id
     JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
+    WHERE p.user_id = ?
     GROUP BY p.purchase_id, p.invoice_number, p.purchase_date, s.supplier_name
     ORDER BY p.purchase_date DESC, p.purchase_id DESC
-")->fetchAll();
+");
+$stmtAllPur->execute([$userId]);
+$purchases = $stmtAllPur->fetchAll();
 ?>
 
 <div class="page-header">

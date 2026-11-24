@@ -4,6 +4,7 @@ $pageTitle = 'Wholesale Supplier Management';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 $editSupplier = null;
 
@@ -21,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             if ($action === 'edit' && $supplier_id > 0) {
-                $stmt = $pdo->prepare("UPDATE `Supplier` SET `supplier_name` = ?, `phone` = ?, `email` = ?, `address` = ? WHERE `supplier_id` = ?");
-                $stmt->execute([$supplier_name, $phone, $email, $address, $supplier_id]);
+                $stmt = $pdo->prepare("UPDATE `Supplier` SET `supplier_name` = ?, `phone` = ?, `email` = ?, `address` = ? WHERE `supplier_id` = ? AND `user_id` = ?");
+                $stmt->execute([$supplier_name, $phone, $email, $address, $supplier_id, $userId]);
                 $_SESSION['flash_success'] = "Supplier '{$supplier_name}' updated successfully.";
             } else {
-                $stmt = $pdo->prepare("INSERT INTO `Supplier` (`supplier_name`, `phone`, `email`, `address`) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$supplier_name, $phone, $email, $address]);
+                $stmt = $pdo->prepare("INSERT INTO `Supplier` (`supplier_name`, `phone`, `email`, `address`, `user_id`) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$supplier_name, $phone, $email, $address, $userId]);
                 $_SESSION['flash_success'] = "Supplier '{$supplier_name}' added successfully.";
             }
             header("Location: " . BASE_URL . "suppliers/suppliers.php");
@@ -42,8 +43,8 @@ if (isset($_GET['delete'])) {
     $delId = (int)$_GET['delete'];
     $force = isset($_GET['force']) && $_GET['force'] == '1';
     try {
-        $stmtSupp = $pdo->prepare("SELECT supplier_name FROM `Supplier` WHERE supplier_id = ?");
-        $stmtSupp->execute([$delId]);
+        $stmtSupp = $pdo->prepare("SELECT supplier_name FROM `Supplier` WHERE supplier_id = ? AND user_id = ?");
+        $stmtSupp->execute([$delId, $userId]);
         $suppName = $stmtSupp->fetchColumn();
 
         if (!$suppName) {
@@ -52,8 +53,8 @@ if (isset($_GET['delete'])) {
             exit;
         }
 
-        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `Purchase` WHERE supplier_id = ?");
-        $stmtCheck->execute([$delId]);
+        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM `Purchase` WHERE supplier_id = ? AND user_id = ?");
+        $stmtCheck->execute([$delId, $userId]);
         $purCount = (int)$stmtCheck->fetchColumn();
 
         if ($purCount > 0 && !$force) {
@@ -68,15 +69,15 @@ if (isset($_GET['delete'])) {
                 $pdo->prepare("
                     DELETE pi FROM `Purchase_Item` pi 
                     JOIN `Purchase` p ON pi.purchase_id = p.purchase_id 
-                    WHERE p.supplier_id = ?
-                ")->execute([$delId]);
+                    WHERE p.supplier_id = ? AND p.user_id = ?
+                ")->execute([$delId, $userId]);
 
                 // Delete purchase headers
-                $pdo->prepare("DELETE FROM `Purchase` WHERE supplier_id = ?")->execute([$delId]);
+                $pdo->prepare("DELETE FROM `Purchase` WHERE supplier_id = ? AND user_id = ?")->execute([$delId, $userId]);
             }
 
             // Delete supplier
-            $pdo->prepare("DELETE FROM `Supplier` WHERE supplier_id = ?")->execute([$delId]);
+            $pdo->prepare("DELETE FROM `Supplier` WHERE supplier_id = ? AND user_id = ?")->execute([$delId, $userId]);
             $pdo->commit();
 
             $_SESSION['flash_success'] = "Supplier '{$suppName}' " . ($purCount > 0 ? "and {$purCount} linked purchase invoice(s) " : "") . "were deleted successfully.";
@@ -94,8 +95,8 @@ if (isset($_GET['delete'])) {
 // Handle Edit Fetch
 if (isset($_GET['edit'])) {
     $editId = (int)$_GET['edit'];
-    $stmt = $pdo->prepare("SELECT * FROM `Supplier` WHERE supplier_id = ?");
-    $stmt->execute([$editId]);
+    $stmt = $pdo->prepare("SELECT * FROM `Supplier` WHERE supplier_id = ? AND user_id = ?");
+    $stmt->execute([$editId, $userId]);
     $editSupplier = $stmt->fetch();
 }
 
@@ -104,8 +105,8 @@ $viewSupplierId = (int)($_GET['view'] ?? 0);
 $supplierPurchases = [];
 $activeSupplier = null;
 if ($viewSupplierId > 0) {
-    $stmtSupp = $pdo->prepare("SELECT * FROM `Supplier` WHERE supplier_id = ?");
-    $stmtSupp->execute([$viewSupplierId]);
+    $stmtSupp = $pdo->prepare("SELECT * FROM `Supplier` WHERE supplier_id = ? AND user_id = ?");
+    $stmtSupp->execute([$viewSupplierId, $userId]);
     $activeSupplier = $stmtSupp->fetch();
 
     $stmtPur = $pdo->prepare("
@@ -117,16 +118,16 @@ if ($viewSupplierId > 0) {
             ROUND(SUM(pi.quantity * pi.unit_cost), 2) AS invoice_total
         FROM `Purchase` p
         JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
-        WHERE p.supplier_id = ?
+        WHERE p.supplier_id = ? AND p.user_id = ?
         GROUP BY p.purchase_id, p.invoice_number, p.purchase_date
         ORDER BY p.purchase_date DESC
     ");
-    $stmtPur->execute([$viewSupplierId]);
+    $stmtPur->execute([$viewSupplierId, $userId]);
     $supplierPurchases = $stmtPur->fetchAll();
 }
 
-// Fetch all suppliers with purchase stats
-$suppliers = $pdo->query("
+// Fetch all suppliers with purchase stats scoped to user
+$stmtAllSupp = $pdo->prepare("
     SELECT 
         s.supplier_id,
         s.supplier_name,
@@ -136,11 +137,14 @@ $suppliers = $pdo->query("
         COUNT(DISTINCT p.purchase_id) AS total_invoices,
         COALESCE(SUM(pi.quantity * pi.unit_cost), 0) AS total_spend
     FROM `Supplier` s
-    LEFT JOIN `Purchase` p ON s.supplier_id = p.supplier_id
+    LEFT JOIN `Purchase` p ON s.supplier_id = p.supplier_id AND p.user_id = ?
     LEFT JOIN `Purchase_Item` pi ON p.purchase_id = pi.purchase_id
+    WHERE s.user_id = ?
     GROUP BY s.supplier_id, s.supplier_name, s.phone, s.email, s.address
     ORDER BY s.supplier_id ASC
-")->fetchAll();
+");
+$stmtAllSupp->execute([$userId, $userId]);
+$suppliers = $stmtAllSupp->fetchAll();
 ?>
 
 <div class="page-header">

@@ -4,10 +4,16 @@ $pageTitle = 'Add New Grocery Product';
 require_once __DIR__ . '/../includes/header.php';
 
 $pdo = getDBConnection();
+$userId = getCurrentUserId();
 $error = '';
 
-$categories = $pdo->query("SELECT category_id, category_name FROM `Category` ORDER BY category_name ASC")->fetchAll();
-$suppliers = $pdo->query("SELECT supplier_id, supplier_name FROM `Supplier` ORDER BY supplier_name ASC")->fetchAll();
+$stmtCat = $pdo->prepare("SELECT category_id, category_name FROM `Category` WHERE user_id = ? ORDER BY category_name ASC");
+$stmtCat->execute([$userId]);
+$categories = $stmtCat->fetchAll();
+
+$stmtSup = $pdo->prepare("SELECT supplier_id, supplier_name FROM `Supplier` WHERE user_id = ? ORDER BY supplier_name ASC");
+$stmtSup->execute([$userId]);
+$suppliers = $stmtSup->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_name = trim($_POST['product_name'] ?? '');
@@ -36,19 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
 
-            // 1. Insert into Product
-            $stmt = $pdo->prepare("INSERT INTO `Product` (`product_name`, `category_id`, `supplier_id`, `selling_price`, `reorder_level`, `unit`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-            $stmt->execute([$product_name, $category_id, $supplier_id, $selling_price, $reorder_level, $unit]);
+            // 1. Insert into Product with user_id
+            $stmt = $pdo->prepare("INSERT INTO `Product` (`product_name`, `category_id`, `supplier_id`, `selling_price`, `reorder_level`, `unit`, `created_at`, `user_id`) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)");
+            $stmt->execute([$product_name, $category_id, $supplier_id, $selling_price, $reorder_level, $unit, $userId]);
             $product_id = $pdo->lastInsertId();
 
-            // 2. Initialize 1:1 row in Inventory
-            $stmtInv = $pdo->prepare("INSERT INTO `Inventory` (`product_id`, `quantity_available`, `average_cost`, `last_updated`) VALUES (?, ?, ?, NOW())");
-            $stmtInv->execute([$product_id, $initial_stock, $initial_cost]);
+            // 2. Initialize 1:1 row in Inventory with user_id
+            $stmtInv = $pdo->prepare("INSERT INTO `Inventory` (`product_id`, `quantity_available`, `average_cost`, `last_updated`, `user_id`) VALUES (?, ?, ?, NOW(), ?)");
+            $stmtInv->execute([$product_id, $initial_stock, $initial_cost, $userId]);
 
-            // 3. If initial stock > 0, record OPENING in Stock_Movement
+            // 3. If initial stock > 0, record OPENING in Stock_Movement with user_id
             if ($initial_stock > 0) {
-                $stmtMove = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`) VALUES (?, CURDATE(), 'OPENING', ?, 'Initial opening stock balance at product creation')");
-                $stmtMove->execute([$product_id, $initial_stock]);
+                $stmtMove = $pdo->prepare("INSERT INTO `Stock_Movement` (`product_id`, `movement_date`, `movement_type`, `quantity`, `remarks`, `user_id`) VALUES (?, CURDATE(), 'OPENING', ?, 'Initial opening stock balance at product creation', ?)");
+                $stmtMove->execute([$product_id, $initial_stock, $userId]);
             }
 
             $pdo->commit();
