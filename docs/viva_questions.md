@@ -121,12 +121,14 @@ An **ACID transaction** ensures that multiple related SQL operations either all 
 
 ### Q13: What is the role of Database Triggers in this application?
 **Answer:**  
-In our design, business transactions are managed by PHP PDO with ACID transactions, while database triggers act as **defensive storage-layer constraints**:
-1. `trg_validate_inventory_update`: Fired BEFORE UPDATE on `Inventory`. If any query attempts to set `quantity_available < 0`, it raises:
+In our design, business transactions are managed by PHP PDO with ACID transactions, while database triggers act as **defensive storage-layer constraints** (total of 4 triggers):
+1. `trg_validate_inventory_update`: Fired `BEFORE UPDATE ON Inventory`. If any query attempts to set `quantity_available < 0` or `average_cost < 0`, it rejects the transaction with:
    ```sql
-   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'DBMS Transaction Rejected: Insufficient stock.';
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'DBMS Transaction Rejected: Insufficient stock. Available inventory cannot become negative.';
    ```
-2. `trg_validate_stock_movement_insert`: Fired BEFORE INSERT on `Stock_Movement`. Rejects quantities $\le 0$ and verifies valid `movement_type` ENUM values.
+2. `trg_validate_inventory_insert`: Fired `BEFORE INSERT ON Inventory`. Prevents negative initial stock quantity or negative average cost.
+3. `trg_validate_product_insert`: Fired `BEFORE INSERT ON Product`. Guarantees catalog integrity by rejecting products with `selling_price <= 0` or negative `reorder_level < 0`.
+4. `trg_validate_stock_movement_insert`: Fired `BEFORE INSERT ON Stock_Movement`. Rejects quantities $\le 0$ and verifies valid `movement_type` ENUM values.
 
 ---
 

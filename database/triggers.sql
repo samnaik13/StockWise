@@ -11,6 +11,7 @@ USE `grocery_inventory`;
 DROP TRIGGER IF EXISTS `trg_validate_inventory_insert`;
 DROP TRIGGER IF EXISTS `trg_validate_inventory_update`;
 DROP TRIGGER IF EXISTS `trg_validate_stock_movement_insert`;
+DROP TRIGGER IF EXISTS `trg_validate_product_insert`;
 
 DELIMITER $$
 
@@ -78,6 +79,26 @@ BEGIN
     ) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'DBMS Validation Error: Invalid movement_type specified in Stock_Movement.';
+    END IF;
+END$$
+
+-- ==============================================================================
+-- TRIGGER 4: trg_validate_product_insert
+-- PURPOSE: Guarantee catalog pricing integrity: product selling_price must be
+--          strictly positive (> 0) and reorder_level cannot be negative (>= 0).
+-- ==============================================================================
+CREATE TRIGGER `trg_validate_product_insert`
+BEFORE INSERT ON `Product`
+FOR EACH ROW
+BEGIN
+    IF NEW.selling_price <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'DBMS Validation Error: Product selling_price must be strictly greater than zero.';
+    END IF;
+
+    IF NEW.reorder_level < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'DBMS Validation Error: Product reorder_level cannot be negative.';
     END IF;
 END$$
 
