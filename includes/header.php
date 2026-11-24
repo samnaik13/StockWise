@@ -79,9 +79,9 @@ if (!isset($pageTitle)) {
                     </li>
                 </ul>
             </nav>
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-left: 1rem;">
-                <span style="color: #a3b18a; font-size: 0.85rem;">👤 <?= htmlspecialchars(getCurrentUserName()) ?></span>
-                <a href="<?= BASE_URL ?>logout.php" class="btn btn-outline btn-sm" style="color: #e9ecef; border-color: rgba(255,255,255,0.2); font-size: 0.8rem;">Logout</a>
+            <div class="header-user-nav">
+                <span class="header-user-name">👤 <?= htmlspecialchars(getCurrentUserName()) ?></span>
+                <a href="<?= BASE_URL ?>logout.php" class="btn btn-outline btn-sm logout-btn">Logout</a>
             </div>
         </div>
     </header>

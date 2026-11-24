@@ -98,11 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
 
-                <?php if (isset($_SESSION['flash_success'])): ?>
-                    <div class="alert alert-success"><?= htmlspecialchars($_SESSION['flash_success']) ?></div>
-                    <?php unset($_SESSION['flash_success']); ?>
-                <?php endif; ?>
-
                 <form method="POST" action="">
                     <div class="form-group">
                         <label>Email Address <span class="required">*</span></label>

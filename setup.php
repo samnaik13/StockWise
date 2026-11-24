@@ -96,8 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .setup-brand p { color: var(--text-muted); font-size: 0.9rem; margin: 0.25rem 0 0; }
         .password-wrapper { position: relative; }
         .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; padding: 4px; }
-        .setup-info { background: var(--primary-subtle); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.25rem; border: 1px solid #c8e6c9; }
-        .setup-info p { margin: 0; font-size: 0.9rem; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -113,10 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Welcome, <?= htmlspecialchars($primaryUser['full_name']) ?>!</h2>
             </div>
             <div class="card-body">
-                <div class="setup-info">
-                    <p><strong>Primary Account Setup:</strong> Your name is pre-configured as <strong><?= htmlspecialchars($primaryUser['full_name']) ?></strong>. Please provide your email, mobile number, and create a password to activate your account. All existing StockWise data will be linked to this account.</p>
-                </div>
-
                 <?php if ($error !== ''): ?>
                     <div class="alert alert-danger"><?= $error ?></div>
                 <?php endif; ?>
